@@ -1,0 +1,31 @@
+name: Agent task
+description: A bounded task with observable acceptance criteria
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What should work when this task is done?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and boundaries
+      description: Relevant files/components, dependencies, and what must remain unchanged.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Observable outcomes. Include user journeys where relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: Commands/checks and expected results. A skipped check is not a pass.
+    validations:
+      required: true

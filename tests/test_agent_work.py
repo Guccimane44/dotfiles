@@ -1,0 +1,76 @@
+import argparse
+import contextlib
+import importlib.util
+import io
+import json
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import patch
+
+spec = importlib.util.spec_from_file_location('agent_work', Path(__file__).resolve().parents[1] / 'scripts/agent-work.py')
+a = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(a)
+
+
+class InfrastructureTests(unittest.TestCase):
+    def test_path_validation(self):
+        for repo in ('../../other', '../repo', 'owner/..', '/tmp/repo', 'a/b/c', 'a b/c'):
+            with self.assertRaises(RuntimeError): a.location(repo, 1)
+        with self.assertRaises(RuntimeError): a.location('owner/repo', 0)
+
+    def test_unknown_quota_is_not_permission(self):
+        with self.assertRaises(RuntimeError): a.quota_guard({}, 15)
+
+    def test_secondary_exhaustion_blocks_dispatch(self):
+        data = {'rateLimits': {'primary': {'usedPercent': 10}, 'secondary': {'usedPercent': 99}}}
+        with self.assertRaises(RuntimeError): a.quota_guard(data, 15)
+        a.quota_guard({'rateLimits': {'primary': {'usedPercent': 20}}}, 15)
+
+    def test_paused_or_closed_issue_blocks_dispatch(self):
+        for item in ({'state': 'closed', 'labels': []}, {'state': 'open', 'labels': ['agent:paused']}):
+            with self.assertRaises(RuntimeError): a.eligible(item)
+
+    def test_lock_blocks_second_process(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(a, 'ROOT', Path(tmp)):
+            with a.lock():
+                code = 'import fcntl,sys; f=open(sys.argv[1],"a"); fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB)'
+                p = subprocess.run(['python3', '-c', code, str(Path(tmp)/'worker.lock')], capture_output=True)
+                self.assertNotEqual(p.returncode, 0)
+
+    def test_interrupted_run_keeps_session_and_next_run_resumes(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(a, 'ROOT', Path(tmp)/'state'):
+            work = Path(tmp)/'repo'; work.mkdir()
+            subprocess.run(['git', 'init', '-b', 'agent/issue-1', str(work)], check=True, capture_output=True)
+            subprocess.run(['git', '-C', str(work), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '--allow-empty', '-m', 'Fixture'], check=True, capture_output=True)
+            (work/'.agent-work').mkdir()
+            (work/'.agent-work/checkpoint.md').write_text('Completed investigation. Next: edit code.')
+            folder = a.location('owner/repo', 1)
+            a.save(folder/'state.json', {'workspace': str(work), 'branch': 'agent/issue-1', 'attempts': 0, 'session_id': None})
+            fake = Path(tmp)/'codex'
+            fake.write_text('#!/usr/bin/env python3\nimport sys,json\nsys.stdin.read()\nif "resume" not in sys.argv:\n print(json.dumps({"type":"thread.started","thread_id":"saved-session"}),flush=True)\n print(json.dumps({"type":"turn.failed","error":{"message":"quota exceeded"}}),flush=True)\n sys.exit(1)\nassert "saved-session" in sys.argv\nprint(json.dumps({"type":"turn.completed","usage":{"output_tokens":10}}),flush=True)\n')
+            fake.chmod(0o700)
+            args = argparse.Namespace(repo='owner/repo', issue=1, minutes=1, reserve=15)
+            with patch.object(a, 'tool', return_value=str(fake)), patch.object(a, 'quota', return_value={'rateLimits': {'primary': {'usedPercent': 0}}}), patch.object(a, 'snapshot', return_value=({'state': 'open', 'labels': []}, [])), contextlib.redirect_stdout(io.StringIO()):
+                a.run(args)
+                state = json.loads((folder/'state.json').read_text())
+                self.assertEqual(state['status'], 'interrupted')
+                self.assertEqual(state['session_id'], 'saved-session')
+                a.run(args)
+                state = json.loads((folder/'state.json').read_text())
+                self.assertEqual(state['status'], 'needs-review')
+                self.assertEqual(state['attempts'], 2)
+            self.assertIn('Completed investigation', (work/'.agent-work/checkpoint.md').read_text())
+
+    def test_atomic_state_has_private_permissions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)/'state.json'
+            a.save(path, {'session_id': 'one'}); a.save(path, {'session_id': 'two'})
+            self.assertEqual(json.loads(path.read_text())['session_id'], 'two')
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            self.assertFalse(path.with_suffix('.tmp').exists())
+
+
+if __name__ == '__main__': unittest.main()
