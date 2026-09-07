@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "repository": "Guccimane44/dotfiles",
+  "default_branch": "main",
+  "scope": "Dotfiles and the single-Mac agent infrastructure only; no product repositories",
+  "stack": "Nix flake, nix-darwin, Home Manager, Python 3 standard library",
+  "setup": ["nix", "build", ".#darwinConfigurations.mac.system", "--no-link"],
+  "checks": [
+    {"name": "Infrastructure regression tests", "command": ["python3", "-m", "unittest", "discover", "-s", "tests", "-v"]},
+    {"name": "Patch whitespace", "command": ["git", "diff", "--check"]}
+  ],
+  "policy": {
+    "workers": 1,
+    "attempt_minutes": 20,
+    "weekly_reserve": 3,
+    "short_reserve": 25,
+    "retry_authority": "supervising-agent",
+    "automatic_publication": false,
+    "dispatch_enabled": false
+  }
+}

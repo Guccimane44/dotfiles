@@ -84,3 +84,11 @@ scheduler health without starting a model turn.
 
 See [feedback acknowledgment, revision-bound review and project readiness](docs/reviews.md)
 for the required evidence before accepting work or authorizing another attempt.
+
+Automated checks can be run explicitly with
+`agent-work verify ISSUE --contract ~/.dotfiles/project.json`.
+The supplied contract runs regression tests and patch-whitespace checks; add the
+relevant Nix build or other task-specific checks when needed. Verification records
+actual results but does not accept or publish the work automatically. The contract's
+`dispatch_enabled: false` prevents onboarding from granting dispatch; it does not
+change the separately authorized scheduler's enabled flag.

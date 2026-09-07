@@ -1,5 +1,6 @@
 import argparse
 import contextlib
+import hashlib
 import importlib.util
 import io
 import json
@@ -29,7 +30,12 @@ class ReviewTests(unittest.TestCase):
 
     def evidence_for(self, result='passed'):
         revision, _ = s.review_snapshot(1)
-        self.evidence.write_text(json.dumps({'revision':revision, 'summary':'Checked fixture; next step is review.',
+        directory = s.a.location(s.REPO, 1)/'verifications'/('a'*32)
+        directory.mkdir(parents=True, exist_ok=True)
+        (directory/'0.log').write_text('fixture passed')
+        s.a.save(directory/'report.json', {'status':'passed','revision':revision,'revision_after':revision,
+            'checks':[{'result':'passed','output':'0.log','output_sha256':hashlib.sha256(b'fixture passed').hexdigest()}]})
+        self.evidence.write_text(json.dumps({'verification':'a'*32, 'revision':revision, 'summary':'Checked fixture; next step is review.',
                                            'checks':[{'name':'fixture check', 'result':result, 'evidence':'Observed expected fixture contents'}]}))
 
     def test_changed_untracked_content_or_feedback_invalidates_evidence(self):

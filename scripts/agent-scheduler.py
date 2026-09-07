@@ -286,6 +286,26 @@ def review_snapshot(issue):
     return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest(), data
 
 
+def require_verification(issue, identifier, revision):
+    import re
+    if not isinstance(identifier, str) or not re.fullmatch(r'[a-f0-9]{32}', identifier):
+        raise RuntimeError('Acceptance requires an automated verification ID')
+    directory = a.location(REPO, issue)/'verifications'/identifier
+    report = json.loads((directory/'report.json').read_text())
+    if report.get('status') != 'passed' or report.get('revision') != revision or report.get('revision_after') != revision:
+        raise RuntimeError('Automated verification failed or is stale')
+    checks = report.get('checks', [])
+    if not checks or any(c.get('result') != 'passed' for c in checks):
+        raise RuntimeError('Automated checks did not pass')
+    for check in checks:
+        name = check.get('output', '')
+        if not name or Path(name).name != name or name in ('.', '..'):
+            raise RuntimeError('Invalid verification output path')
+        path = directory/name
+        if path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != check.get('output_sha256'):
+            raise RuntimeError('Verification output changed')
+
+
 def record_review(issue, evidence_path, decision):
     with scheduler_lock(), a.lock():
         state = load()
@@ -306,6 +326,8 @@ def record_review(issue, evidence_path, decision):
             raise RuntimeError('Acceptance requires passing checks; resolve failures or skipped checks')
         if not isinstance(evidence.get('summary'), str) or not evidence['summary'].strip():
             raise RuntimeError('Explain the review conclusion and next action')
+        if decision == 'accept':
+            require_verification(issue, evidence.get('verification'), revision)
         record = {'revision': revision, 'head': snapshot['head'], 'decision': decision,
                   'reviewed_at': a.stamp(), 'reviewer': 'supervising-agent', 'evidence': evidence}
         a.save(a.location(REPO, issue)/'review.json', record)

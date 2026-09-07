@@ -68,3 +68,30 @@ is one worker, 20 minutes, 25% short-window reserve, 3% weekly reserve, supervis
 retry review and no automatic publication. Demonstrate setup, checks and saved-session
 recovery in a disposable task before proposing an allowlist change. Product repositories,
 including Vocabularium, remain excluded from the current scheduler.
+
+## Run automated verification before acceptance
+
+The supervisor reviews the contract's commands, then explicitly runs:
+
+```sh
+agent-work verify ISSUE --contract /absolute/path/project.json --seconds 300
+```
+
+This executes the declared check argument lists in the saved task workspace. It does
+not run setup, install dependencies, start a model, publish results or enable dispatch.
+These are local commands with the operator's permissions, not a new security sandbox;
+only use commands already authorized for the task. The default total limit is five
+minutes (maximum ten). A failed check stops the sequence. Each output is capped at
+1 MiB; timeout/output overflow fails the check and kills its process group.
+
+Results, exit codes, command arguments, durations and hashed logs are retained privately
+under the task's `verifications/ID/` directory. The report is saved before execution
+and after every check. An interruption cannot leave a passing report. Checks that change
+nonignored code or run against changed issue feedback fail revision validation.
+
+Add the returned `verification` ID to the review evidence JSON alongside `revision`,
+`summary` and manual `checks`. Acceptance now requires a matching successful automated
+report and unchanged output logs; a retry review may still document failed verification.
+The supervisor remains responsible for checking that the chosen tests establish the
+issue's acceptance criteria. Passing a weak test suite is not proof of correctness.
+This requirement applies to new acceptance decisions, not historical accepted jobs.
