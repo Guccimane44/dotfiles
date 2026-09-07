@@ -1,6 +1,6 @@
 # Single-Mac scheduler
 
-Scope: only `Guccimane44/dotfiles`, one GPT-6 Astra worker, medium reasoning, subscription login, 25% quota reserve, 20-minute attempt deadline. No product repositories, automatic retries of started attempts, code publication, or merges. Polling uses GitHub and account APIs, not model turns.
+Scope: only `Guccimane44/dotfiles`, one GPT-6 Astra worker, medium reasoning, subscription login, 25% five-hour and 3% weekly quota reserves, 20-minute attempt deadline. No product repositories, automatic retries of started attempts, code publication, or merges. Polling uses GitHub and account APIs, not model turns.
 
 ## Installation and controls
 
@@ -32,7 +32,7 @@ A dispatch reservation is persisted before preparation/launch. Restarted reserva
 
 Retries reuse saved Codex session IDs and workspaces. A missing ID after a started attempt blocks approval. A missing session on Codex's side stops the attempted resume and needs investigation; there is no fallback to a new thread. A preparation failure may leave a branch/worktree before state was saved; inspect and reconcile it manually.
 
-Before launch, missing quota data blocks work. Exhausted reported windows persist a next-check time after their reset (at least five minutes); unknown reset/account failures wait at least five minutes. No model polls for quota. Active workers are checked periodically; reaching the reserve or losing control-plane access stops the attempt and requires approval to resume. This does not consume reset credits or enable API billing.
+Before launch, missing quota data blocks work. Exhausted reported windows persist a next-check time after their reset (at least five minutes); unknown reset/account failures wait at least five minutes. No model polls for quota. Active workers are checked periodically; reaching the applicable reserve or losing control-plane access stops the attempt and requires approval to resume. This does not consume reset credits or enable API billing.
 
 The controller writes a cooperative checkpoint request and allows five seconds before termination on a detected stop/deadline. It cannot guarantee the worker reads that request. A forced stop may leave partial edits or a partial checkpoint. The nominal 20-minute deadline can overshoot while bounded control-plane calls finish. It is not a hard token cap, and other sessions can consume shared quota between checks.
 
@@ -43,3 +43,5 @@ Service logs are local `scheduler/service.log` and `scheduler/service-error.log`
 ## Verification
 
 `python3 -m unittest discover -s tests -v` tests recovery, no automatic retry, missing session, failed publication/API reads, quota wait persistence, controls, and lock exclusion without model calls. A separate small live infrastructure issue verifies installation and GitHub updates. This is single-host infrastructure, not a Symphony-compatible distributed service.
+
+The weekly reserve was lowered to 3% at the user’s request. The scheduler rechecks quota when its policy changes instead of retaining a wait computed under the former 25% weekly threshold. This does not approve retries of already-started work.

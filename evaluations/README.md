@@ -15,3 +15,5 @@ Compare task-level results, not just pooled tokens: quality must be at least com
 ## Recorded run
 
 The user authorized the four-attempt pilot. See [partial results](skills-pilot-2026-09-07.md): two attempts completed, the third stopped at the weekly quota reserve, and the fourth was not started. Further attempts require a separate decision; do not automatically resume.
+
+The user subsequently lowered the weekly reserve to 3% (five-hour reserve remains 25%) and authorized continuation. One same-session resume and the remaining baseline completed the four conditions in five attempts. The report preserves the interrupted attempt and explains why the React comparison is confounded.

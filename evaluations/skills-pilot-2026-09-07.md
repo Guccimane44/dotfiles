@@ -1,4 +1,4 @@
-# Vercel skills pilot: partial results
+# Vercel skills pilot: results with interrupted-session recovery
 
 Date: 2026-09-07. **Verdict: keep skills selective; this pilot does not demonstrate a general quality or quota-efficiency gain.**
 
@@ -6,9 +6,9 @@ All three pinned skills passed the supplied Skill Creator validator with tempora
 
 ## What ran
 
-The approved cap was four fresh GPT-6 Astra/medium attempts: two identical task pairs, with and without project skills. Two attempts completed. The third was stopped when the shared weekly quota reached the 25% reserve; the fourth never started. There were no controller retries, paid API fallback, or reset-credit consumption.
+The original approved cap was four fresh GPT-6 Astra/medium attempts. After two completed, the third stopped at the former 25% weekly reserve. The user then lowered the weekly reserve to 3% and authorized continuation. We resumed that session and ran the remaining baseline: five attempts across four conditions, including the original interruption. The five-hour reserve stayed at 25%. No automatic retries, paid API fallback, or reset credits were used.
 
-Each attempt used an isolated Codex home with the existing subscription login, a fresh workspace, the same CLI/settings, a five-minute deadline, and read-only sandboxing. Both web runs received the same prompt and source bytes. The scoring rubric was not placed in the workspaces. The web pair ran baseline first; the planned React pair reversed that order but did not complete. Account-level caching and other sessions' quota use were not controlled.
+Each attempt used an isolated Codex home with the existing subscription login, a fresh workspace, the same CLI/settings, a five-minute deadline, and read-only sandboxing. Both web runs received the same prompt and source bytes. The scoring rubric was not placed in the workspaces. The web pair ran baseline first; the React pair reversed that order but required interruption and recovery. Account-level caching and other sessions' quota use were not controlled.
 
 ## Completed web-review pair
 
@@ -28,18 +28,33 @@ Both found the missing input label, inaccessible clickable div, missing image al
 
 The skill run read both its entry point and pinned guideline file. The baseline's recorded commands did not read a skill. Both preserved all workspace files. The skill run used **7.0% more total input** and **12.2% more output**, while uncached input was **8.5% lower**. Runtime was 0.88 seconds longer. These are observations from one pair, not estimates of expected project performance. Different cache reuse prevents treating the uncached-input reduction as proven skill savings. Token counts do not map directly to subscription quota or financial cost.
 
-## Interrupted React condition
+## Original React interruption
 
-The third attempt read the React skill and the relevant parallel-fetching, derived-state, and immutable-sort references. The quota guard stopped it after 31.27 seconds; it produced no final answer. No quality score is assigned. The React baseline was not started.
+The third attempt read the React skill and the relevant parallel-fetching, derived-state, and immutable-sort references. The quota guard stopped it after 31.27 seconds; it produced no final answer. No quality score is assigned. At that point the React baseline had not started; both conditions were subsequently finished under the revised policy below.
 
 The native session log retained a partial cumulative snapshot: 51,215 input tokens, including 44,928 cached, and 269 output tokens. It may omit usage still in flight when the process was stopped. The complete interrupted-attempt total remains unknown; this is not counted as a zero-cost attempt.
 
+## Authorized continuation and completed React pair
+
+The continuation reused the exact saved Codex session. It produced its answer in 15.68 seconds without further file-reading commands. The remaining fresh baseline took 32.06 seconds. Both found all three predefined defects: sequential independent fetches, effect-derived state, and unnecessary in-place sorting of props. No false positives were observed in the manual review.
+
+| React measure | Fresh baseline | Skills, including interruption and continuation |
+|---|---:|---:|
+| Predefined defects found | 3/3 | 3/3 |
+| Observed false positives | 0 | 0 |
+| Active duration | 32.06 s | 46.95 s |
+| Reported input tokens | 46,680 | At least 70,493 |
+| Cached input (included above) | 42,496 | At least 64,000 |
+| Output tokens | 544 | At least 625 |
+
+The resumed call alone reported 19,278 input tokens (19,072 cached) and 356 output tokens. Comparing only that short continuation with the complete baseline would hide the earlier work. The skill-condition totals above include the last partial native snapshot from the interrupted attempt plus the continuation; missing in-flight usage remains unknown. The quota interruption and changed policy confound this pair, so its token difference cannot be attributed solely to skills.
+
 ## Decision
 
-Keep the profiles pinned and opt-in for relevant projects. They provide inspectable engineering conventions, and actual skill reading was verified, but this sample showed no extra defects found on the completed task. Do not expand global instructions or add workers on the assumption that skills save quota.
+Keep the profiles pinned and opt-in for relevant projects. They provide inspectable engineering conventions, and actual skill reading was verified, but neither task showed extra defects found with skills. Do not expand global instructions or add workers on the assumption that skills save quota.
 
 Herdr's usability, checkpoint recovery, and the scheduler's effect on full-project delivery were not compared here. This experiment measures only the marginal effect of the selected skills on small static reviews. It cannot establish how much Kun's complete methodology improves GPT-6 development.
 
-A complete React comparison and broader task sample would need a separate quota decision after sufficient quota is available. The controller will not resume this pilot automatically. Preserve these incomplete results rather than replacing them with a cleaner-looking rerun.
+Both comparison conditions now have final answers, but a clean uninterrupted React pair and broader sample would require a separate experiment. No further model runs are scheduled. Preserve the interrupted attempt and changed policy in the record rather than presenting this as four uninterrupted trials.
 
 Machine-readable metrics and source hashes: `skills-pilot-2026-09-07.json`. Raw transcripts, prompts, isolated workspaces, and the executed helper remain local under `~/.local/state/agent-work/evaluations/skills-pilot-2026-09-07/`; credential references and session identifiers are not included in the published summary.

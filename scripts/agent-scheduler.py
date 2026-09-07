@@ -21,6 +21,7 @@ SOURCE = Path.home() / '.dotfiles'
 # One fixed lock/state domain on this Mac, shared with the manual launcher.
 a.ROOT = Path.home() / '.local/state/agent-work'
 SERVICE = 'local.agent-work.scheduler'
+QUOTA_POLICY = {'short_reserve': 25, 'weekly_reserve': 3}
 
 
 def paths():
@@ -63,7 +64,7 @@ def wait_until(data):
     buckets = data.get('rateLimitsByLimitId') or {'codex': data.get('rateLimits')}
     resets = [w.get('resetsAt') for b in buckets.values() if b
               for k in ('primary', 'secondary') for w in [b.get(k)]
-              if w and w.get('usedPercent', 0) is not None and w.get('usedPercent', 0) >= 75]
+              if w and w.get('usedPercent', 0) is not None and w.get('usedPercent', 0) >= 100 - a.window_reserve(w, k, QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])]
     return max([now + 300] + [r + 60 if isinstance(r, (int, float)) else now + 3600 for r in resets])
 
 
@@ -115,7 +116,7 @@ def monitor(issue, baseline):
         if fingerprint(snap) != baseline:
             return 'feedback-received'
         try:
-            a.quota_guard(a.quota(), 25)
+            a.quota_guard(a.quota(), QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])
         except Exception:
             return "quota-or-account-unavailable"
         if time.monotonic() - last_publish[0] >= 120:
@@ -130,6 +131,11 @@ def tick():
         if not paths()[2].exists():
             return
         state = load()
+        if state.get('quota_policy') != QUOTA_POLICY:
+            state['quota_policy'] = dict(QUOTA_POLICY)
+            state.pop('next_check', None)
+            state.pop('last_error', None)
+            persist(state)
         # The child inherits the worker lock: a scheduler crash cannot free a live worker's lock.
         with a.lock():
             for job in state['jobs'].values():
@@ -162,12 +168,12 @@ def tick():
                 continue
             try:
                 data = a.quota()
-                a.quota_guard(data, 25)
+                a.quota_guard(data, QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])
             except Exception as error:
                 state['next_check'] = wait_until(data) if 'data' in locals() else time.time() + 300
                 # Preserve approved retry permission; no attempt was started.
                 state['last_error'] = str(error)
-                job['publication'] = ['waiting-quota', 'Quota is unavailable or the 25% reserve is reached. No model turn started; the controller will recheck after its saved waiting period.']
+                job['publication'] = ['waiting-quota', 'Quota is unavailable or the 25% short-window or 3% weekly reserve is reached. No model turn started; the controller will recheck after its saved waiting period.']
                 state['jobs'][key] = job
                 persist(state)
                 flush(state)
@@ -177,7 +183,7 @@ def tick():
             job.update(status='dispatching', started_at=a.stamp())
             state['jobs'][key] = job
             persist(state)
-            args = argparse.Namespace(repo=REPO, issue=issue, checkout=str(SOURCE), minutes=20, reserve=25)
+            args = argparse.Namespace(repo=REPO, issue=issue, checkout=str(SOURCE), minutes=20, reserve=QUOTA_POLICY['short_reserve'], weekly_reserve=QUOTA_POLICY['weekly_reserve'])
             try:
                 if not saved.exists():
                     a.prepare(args)

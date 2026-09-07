@@ -63,6 +63,19 @@ class SchedulerTests(unittest.TestCase):
         with patch.object(s.a, 'quota') as quota:
             s.tick(); quota.assert_not_called()
 
+    def test_wait_ignores_weekly_window_above_new_reserve(self):
+        with patch.object(s.time, 'time', return_value=1000):
+            self.assertEqual(s.wait_until({'rateLimits': {'primary': {'usedPercent':80, 'resetsAt':2000},
+                                                         'secondary': {'usedPercent':90, 'resetsAt':9000}}}),2060)
+
+    def test_policy_change_discards_old_wait_without_approving_work(self):
+        s.persist({'jobs':{'5':{'status':'needs-approval'}},'next_check':9999999999,
+                   'quota_policy':{'short_reserve':25,'weekly_reserve':25}})
+        with patch.object(s.a, 'run') as run:
+            s.tick(); run.assert_not_called()
+        self.assertNotIn('next_check',s.load())
+        self.assertEqual(s.load()['jobs']['5']['status'],'needs-approval')
+
     def test_unknown_quota_waits_without_model(self):
         with patch.object(s.a, 'quota', side_effect=RuntimeError('offline')), patch.object(s.a, 'run') as run:
             s.tick(); run.assert_not_called()

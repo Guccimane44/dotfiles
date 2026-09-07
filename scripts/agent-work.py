@@ -191,7 +191,13 @@ def quota():
         p.stdin.close(); p.stdout.close()
 
 
-def quota_guard(data, reserve):
+def window_reserve(window, key, reserve, weekly_reserve=3):
+    minutes = window.get('windowDurationMins')
+    weekly = minutes == 10080 or (minutes is None and key == 'secondary')
+    return weekly_reserve if weekly else reserve
+
+
+def quota_guard(data, reserve, weekly_reserve=3):
     buckets = data.get('rateLimitsByLimitId') or {'codex': data.get('rateLimits')}
     observed = False
     for name, bucket in buckets.items():
@@ -204,7 +210,7 @@ def quota_guard(data, reserve):
             if not window or window.get('usedPercent') is None:
                 continue
             observed = True
-            if window['usedPercent'] >= 100 - reserve:
+            if window['usedPercent'] >= 100 - window_reserve(window, key, reserve, weekly_reserve):
                 when = window.get('resetsAt')
                 reset = dt.datetime.fromtimestamp(when, dt.timezone.utc).isoformat() if when else 'unknown'
                 raise RuntimeError(f'Quota reserve reached ({name}/{key}); resets at {reset}. No retry loop.')
@@ -217,7 +223,7 @@ def run(args):
         folder, state = read_state(args)
         snap, _ = snapshot(args.repo, args.issue)
         eligible(snap)
-        quota_guard(quota(), args.reserve)
+        quota_guard(quota(), args.reserve, getattr(args, "weekly_reserve", 3))
         workspace = Path(state['workspace'])
         if not workspace.is_dir():
             raise RuntimeError('Saved workspace is missing; recover it before resuming')
@@ -376,6 +382,7 @@ def main():
         if name == 'run':
             p.add_argument('--minutes', type=int, default=20)
             p.add_argument('--reserve', type=int, default=15)
+            p.add_argument('--weekly-reserve', type=int, default=3)
         if name == 'sync':
             p.add_argument('--publish', action='store_true')
     for extra in ('scheduler', 'console', 'skills'):
@@ -383,8 +390,8 @@ def main():
         sp.add_argument('scheduler_args', nargs=argparse.REMAINDER)
     subs.add_parser('quota')
     args = parser.parse_args()
-    if args.command == 'run' and (not 1 <= args.minutes <= 120 or not 5 <= args.reserve <= 95):
-        parser.error('minutes must be 1–120; reserve must be 5–95 percent')
+    if args.command == 'run' and (not 1 <= args.minutes <= 120 or not 5 <= args.reserve <= 95 or not 1 <= args.weekly_reserve <= 95):
+        parser.error('minutes must be 1–120; short-window reserve 5–95; weekly reserve 1–95 percent')
     os.umask(0o077)
     try:
         if args.command in ('scheduler', 'console', 'skills'):

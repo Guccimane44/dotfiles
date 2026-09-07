@@ -21,6 +21,16 @@ class InfrastructureTests(unittest.TestCase):
             with self.assertRaises(RuntimeError): a.location(repo, 1)
         with self.assertRaises(RuntimeError): a.location('owner/repo', 0)
 
+    def test_weekly_three_percent_boundary_preserves_short_window(self):
+        a.quota_guard({'rateLimits': {'primary': {'usedPercent': 74, 'windowDurationMins': 300},
+                                     'secondary': {'usedPercent': 96, 'windowDurationMins': 10080}}}, 25)
+        for primary, secondary in ((75, 90), (20, 97)):
+            with self.assertRaises(RuntimeError):
+                a.quota_guard({'rateLimits': {'primary': {'usedPercent': primary},
+                                             'secondary': {'usedPercent': secondary}}}, 25)
+        self.assertEqual(a.window_reserve({'windowDurationMins':10080},'primary',25),3)
+        self.assertEqual(a.window_reserve({'windowDurationMins':300},'secondary',25),25)
+
     def test_unknown_quota_is_not_permission(self):
         with self.assertRaises(RuntimeError): a.quota_guard({}, 15)
 
