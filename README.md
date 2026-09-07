@@ -1,6 +1,6 @@
 # Dotfiles and issue-based development
 
-Personal Apple Silicon macOS configuration plus a small, manually operated GitHub/Codex workflow. Workers use GPT-6 Astra through the existing ChatGPT login. There is no unattended scheduler, paid API fallback, automatic merge, or automatic deployment.
+Personal Apple Silicon macOS configuration plus a bounded GitHub/Codex workflow. Workers use GPT-6 Astra through the existing ChatGPT login. The opt-in scheduler runs on this Mac only. There is no paid API fallback, automatic code publication, merge, or deployment.
 
 ## Machine setup
 
@@ -38,6 +38,10 @@ Before Nix activation, `~/.dotfiles/scripts/agent-work` also works with Python 3
 
 You can ask your supervising agent to perform these steps; you do not have to remember the commands. It must obtain authorization for external publication if the current task does not already provide it.
 
+## Single-Mac scheduler (Phase 2)
+
+See [scheduler operations](docs/scheduler.md) for activation, issue controls, explicit retry approval, and limits. The following manual-run controls still apply to foreground runs.
+
 ## Pause and recovery
 
 - Press Ctrl-C in the running launcher to stop. Partial edits, checkpoints, logs, and the saved session ID remain.
@@ -55,7 +59,7 @@ Default: GPT-6 Astra, medium reasoning, one worker, 20-minute run ceiling, and a
 
 The launcher removes an inherited `OPENAI_API_KEY`, requires ChatGPT authentication, and ignores the user's base config for worker invocation so model/effort are explicit. It uses workspace-write sandboxing and refuses requests needing approval in the noninteractive worker. It does not bypass the sandbox, install tools, or change host configuration for workers. Missing tools/permissions should be reported for the supervisor to resolve.
 
-**The reserve is a preflight check, not a hard per-run spending cap.** Other sessions share account limits. A running worker can exhaust quota; it stops and preserves state rather than retrying repeatedly. There is no token-budget enforcement or automatic reset-time wakeup yet. Logs include token usage for completed turns; interrupted-turn accounting may be incomplete. Logs and sessions stay local and may contain sensitive task data.
+**The reserve is a preflight check, not a hard per-run spending cap.** Other sessions share account limits. A running worker can exhaust quota; it stops and preserves state rather than retrying repeatedly. There is no hard token-budget enforcement. The optional scheduler adds persisted quota waiting and periodic monitoring. Logs include token usage for completed turns; interrupted-turn accounting may be incomplete. Logs and sessions stay local and may contain sensitive task data.
 
 ## Validate infrastructure
 

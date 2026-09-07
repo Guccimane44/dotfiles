@@ -26,3 +26,11 @@ Required before unattended use:
 - Test restart, API outage, missing session, quota exhaustion, and concurrent claim scenarios.
 
 Increase to two independent implementation workers only after these contracts are tested. Do not apply the workflow to Vocabularium during infrastructure setup.
+
+## Authorized Phase 2 scope adjustment
+
+The user approved the smaller single-Mac scheduler on 2026-09-07 after comparison with Symphony v0.0.2. Official Symphony has a GitHub adapter, but its worker attempts start new threads, failures retry automatically, and blocked state is in memory. Reusing it unchanged would weaken the desired recovery/cost controls.
+
+This rollout replaces cross-host leases with one fixed local lock domain, including a worker-inherited lock. Cross-host operation is unsupported. It provides checkpoint stop requests and periodic quota reads, not guaranteed graceful completion or a hard token cap. Missing interrupted-attempt usage is explicitly unknown. Automatic code/PR publication is deferred; therefore exact-commit validation remains a human publication gate. A second worker and Vocabularium remain excluded.
+
+Source comparison: [official release README](https://github.com/openai/symphony/blob/v0.0.2/elixir/README.md), [orchestrator](https://github.com/openai/symphony/blob/v0.0.2/elixir/lib/symphony_elixir/orchestrator.ex), [Codex session creation](https://github.com/openai/symphony/blob/v0.0.2/elixir/lib/symphony_elixir/codex/app_server.ex). GitHub-native alternatives reviewed included symphony-ts and agent-orchestrator; they add a separate runtime/framework, while extending the already-tested launcher preserves our saved-session behavior with no new dependencies.

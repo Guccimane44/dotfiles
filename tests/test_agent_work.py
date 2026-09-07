@@ -64,6 +64,18 @@ class InfrastructureTests(unittest.TestCase):
                 self.assertEqual(state['attempts'], 2)
             self.assertIn('Completed investigation', (work/'.agent-work/checkpoint.md').read_text())
 
+    def test_worker_inherits_lock_after_parent_releases_descriptor(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(a, 'ROOT', Path(tmp)):
+            with a.lock() as fd:
+                child = subprocess.Popen(['python3', '-c', 'import sys; sys.stdin.read()'],
+                                         stdin=subprocess.PIPE, pass_fds=(fd,))
+            try:
+                with self.assertRaises(RuntimeError):
+                    with a.lock(): pass
+            finally:
+                child.communicate(timeout=5)
+            with a.lock(): pass
+
     def test_atomic_state_has_private_permissions(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp)/'state.json'
