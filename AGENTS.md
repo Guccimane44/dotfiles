@@ -10,7 +10,14 @@ Deliberate decisions in this repo - do NOT silently revert them:
 Use GitHub issues for substantive infrastructure tasks and link PRs to their issue.
 Read README.md for manual dispatch and recovery. Keep runtime logs, session IDs,
 and credentials outside Git. Test changes with `python3 -m unittest discover -s tests -v`.
-Do not start unattended scheduling or register product repositories in Phase 1.
+Routine implementation choices, verification, acceptance reviews, and bounded retry
+approvals belong to the supervising agent. Do not ask the user to review routine
+work. Ask the user for high-level architectural choices that materially change
+system boundaries, technology/platform choices, data ownership, or long-term
+trade-offs. Record review evidence before acceptance or another attempt. Preserve
+quota, sandbox, repository-scope, and retry protections; an execution permission
+that the environment actually requires must still be surfaced. Do not register
+product repositories as part of dotfiles infrastructure work.
 
 ## Maintaining this file
 

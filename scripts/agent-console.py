@@ -23,7 +23,7 @@ def show():
     enabled=(ROOT/'scheduler/enabled').exists()
     print('DOTFILES AGENT WORK\n')
     print('Dispatch: '+('enabled' if enabled else 'paused'))
-    print('One worker | 25% five-hour / 3% weekly reserve | human-approved retries\n')
+    print('One worker | 25% five-hour / 3% weekly reserve | agent-reviewed retries\n')
     for issue,job in jobs().items():
         print(f'Issue #{issue}: {job["status"]}')
         if job.get('error'): print('  Attention: '+job['error'])

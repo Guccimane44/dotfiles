@@ -188,7 +188,7 @@ def tick():
                 if not saved.exists():
                     a.prepare(args)
                 # Publish before starting so lack of tracker write access prevents invisible work.
-                publish(issue, 'starting', 'Starting one GPT-6 Astra attempt with a 20-minute limit and quota monitoring. Code publication and merging require human review.')
+                publish(issue, 'starting', 'Starting one GPT-6 Astra attempt with a 20-minute limit and quota monitoring. Routine review belongs to the supervising agent; high-level architectural choices go to the user. Publication remains within the task authorization.')
                 args.monitor = monitor(issue, fingerprint(snap))
                 a.run(args)
                 worker = json.loads(saved.read_text())

@@ -21,8 +21,8 @@ Installation alone does not enable dispatch. Disabling removes the local permiss
 2. Add `agent:ready` when you want its first attempt to run. No task dispatches just because it is open.
 3. Follow its **Agent workpad** comment. It records startup, periodic checkpoints, and the stopped state. GitHub write failure prevents startup. Failures during final publication remain queued locally and are retried without a model call.
 4. Remove `agent:ready`, add `agent:paused`/`agent:blocked`, close the issue, or add/edit feedback to stop the active attempt. The controller checks about every 30 seconds; network calls can delay detection. Feedback acknowledgment means detected, not implemented. The next approved attempt receives the updated issue and comments.
-5. Inspect saved work and the checkpoint before approving another attempt. Then run `agent-work scheduler approve ISSUE_NUMBER` and ensure `agent:ready` is present with blocking labels removed. This authorizes exactly one further attempt. Keeping or re-adding the label alone never retries a spent attempt. You can ask Codex to perform this approval after reviewing the result.
-6. Review code and run appropriate verification on the exact commit before publishing a draft PR. Merge remains your decision. A completed agent turn is not a passing test or accepted issue.
+5. Inspect saved work and the checkpoint before approving another attempt. Then run `agent-work scheduler approve ISSUE_NUMBER` and ensure `agent:ready` is present with blocking labels removed. This authorizes exactly one further attempt. Keeping or re-adding the label alone never retries a spent attempt. The supervising agent performs routine review and can approve this bounded retry without asking the user. Escalate only high-level architectural decisions; actual environment permission requirements still apply.
+6. Review code and run appropriate verification on the exact commit before publishing a draft PR. Routine acceptance review belongs to the supervising agent. Publication and merge remain within the task’s authorization; this policy alone does not enable automatic publication or merging. A completed agent turn is not a passing test or accepted issue.
 
 ## Recovery and accounting
 
@@ -45,3 +45,7 @@ Service logs are local `scheduler/service.log` and `scheduler/service-error.log`
 `python3 -m unittest discover -s tests -v` tests recovery, no automatic retry, missing session, failed publication/API reads, quota wait persistence, controls, and lock exclusion without model calls. A separate small live infrastructure issue verifies installation and GitHub updates. This is single-host infrastructure, not a Symphony-compatible distributed service.
 
 The weekly reserve was lowered to 3% at the user’s request. The scheduler rechecks quota when its policy changes instead of retaining a wait computed under the former 25% weekly threshold. This does not approve retries of already-started work.
+
+## Review ownership
+
+`needs-review` and `needs-approval` are supervising-agent queues, not mandatory human gates. The user is consulted for high-level architectural choices. The controller itself does not launch a second reviewer automatically: a supervising agent must inspect the result and record evidence before accepting it or approving one further attempt. This preserves protection against blind retry loops.

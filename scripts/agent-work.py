@@ -242,7 +242,7 @@ def run(args):
                   'Keep .agent-work/checkpoint.md current after each meaningful milestone with completed work, decisions, '
                   'verification, remaining work, and the next action. Read it before proceeding. '
                   'Inspect existing changes and do not redo completed work. Make only task-scoped changes. '
-                  'A failed or skipped check is not a pass. Leave code for human review.\n\n'
+                  'A failed or skipped check is not a pass. Leave code for supervising-agent review. Routine review and bounded retry decisions belong to the supervising agent; escalate high-level architectural choices to the user.\n\n'
                   + json.dumps(snap, ensure_ascii=False))
         cmd = [tool('codex'), 'exec']
         if state['session_id']:
