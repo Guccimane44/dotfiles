@@ -81,3 +81,6 @@ See [Herdr controls and pinned project skills](docs/operator.md). Project onboar
 See [runtime activation, health, rollback, and recovery](docs/runtime.md).
 After deployment, `agent-work release health` reports the installed release and
 scheduler health without starting a model turn.
+
+See [feedback acknowledgment, revision-bound review and project readiness](docs/reviews.md)
+for the required evidence before accepting work or authorizing another attempt.

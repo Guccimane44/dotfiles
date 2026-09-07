@@ -102,9 +102,10 @@ def snapshot(repo, issue):
         raise RuntimeError('Expected an issue, not a pull request')
     comments = json.loads(gh('api', '--paginate', '--slurp', f'repos/{repo}/issues/{issue}/comments?per_page=100'))
     comments = [c for page in comments for c in page]
-    # Own workpads are recovery records, not new human requirements.
+    # Only the authenticated operator's workpads are excluded from feedback.
+    me = json.loads(gh('api', 'user'))['login']
     feedback = [{'id': c['id'], 'author': c['user']['login'], 'updated_at': c['updated_at'], 'body': c['body']}
-                for c in comments if MARKER not in (c.get('body') or '')]
+                for c in comments if not (MARKER in (c.get('body') or '') and c['user']['login'] == me)]
     return {'title': item['title'], 'body': item['body'] or '', 'state': item['state'],
             'labels': [x['name'] for x in item['labels']], 'comments': feedback,
             'url': item['html_url']}, comments
@@ -424,7 +425,7 @@ def main():
             p.add_argument('--weekly-reserve', type=int, default=3)
         if name == 'sync':
             p.add_argument('--publish', action='store_true')
-    for extra in ('scheduler', 'console', 'skills', 'release'):
+    for extra in ('scheduler', 'console', 'skills', 'release', 'project'):
         sp = subs.add_parser(extra)
         sp.add_argument('scheduler_args', nargs=argparse.REMAINDER)
     subs.add_parser('quota')
@@ -433,8 +434,8 @@ def main():
         parser.error('minutes must be 1–120; short-window reserve 5–95; weekly reserve 1–95 percent')
     os.umask(0o077)
     try:
-        if args.command in ('scheduler', 'console', 'skills', 'release'):
-            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py','release':'agent-release.py'}[args.command]
+        if args.command in ('scheduler', 'console', 'skills', 'release', 'project'):
+            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py','release':'agent-release.py','project':'project-contract.py'}[args.command]
             os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name(module)), *args.scheduler_args])
         elif args.command == 'quota':
             print(json.dumps(quota(), indent=2))

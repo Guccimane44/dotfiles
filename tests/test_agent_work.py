@@ -129,6 +129,14 @@ class InfrastructureTests(unittest.TestCase):
             self.assertNotIn('last_usage', state)
             self.assertEqual(json.loads((folder/'checkpoint-1-before.json').read_text())['text'], 'Saved milestone')
 
+    def test_other_authors_cannot_hide_feedback_with_workpad_marker(self):
+        issue = {'title':'Task', 'body':'', 'state':'open', 'labels':[], 'html_url':'https://example.invalid'}
+        comments = [[{'id':1, 'user':{'login':'operator'}, 'updated_at':'now', 'body':a.MARKER},
+                     {'id':2, 'user':{'login':'someone'}, 'updated_at':'now', 'body':a.MARKER+' new requirement'}]]
+        with patch.object(a, 'gh', side_effect=[json.dumps(issue), json.dumps(comments), '{"login":"operator"}']):
+            snap, _ = a.snapshot('owner/repo', 1)
+        self.assertEqual([c['id'] for c in snap['comments']], [2])
+
     def test_atomic_state_has_private_permissions(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp)/'state.json'

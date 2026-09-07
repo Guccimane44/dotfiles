@@ -28,7 +28,7 @@ def show():
         print(f'Issue #{issue}: {job["status"]}')
         if job.get('error'): print('  Attention: '+job['error'])
         print(f'  https://github.com/{REPO}/issues/{issue}')
-    print('\nControls: agent-work console review N | pause [N] | resume N')
+    print('\nControls: agent-work console review N | pause [N] | resume N --evidence FILE | accept N --evidence FILE')
     print('Review required before resume. Ctrl-C exits this view; workers keep their scheduler policy.')
 
 
@@ -74,8 +74,9 @@ def workspace():
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
-    p.add_argument('command',choices=['status','review','pause','resume','open','workspace'])
+    p.add_argument('command',choices=['status','review','pause','resume','accept','open','workspace'])
     p.add_argument('issue',type=int,nargs='?');p.add_argument('--watch',action='store_true')
+    p.add_argument('--evidence', help='JSON review evidence bound to the inspected revision')
     args=p.parse_args()
     if args.issue is not None and args.issue<1: p.error('issue must be positive')
     if args.command=='status':
@@ -89,12 +90,18 @@ def main():
         run(BIN,'status',REPO,args.issue)
         state=json.loads((ROOT/REPO/str(args.issue)/'state.json').read_text())
         run('git','-C',state['workspace'],'diff','--stat')
+        run(BIN,'scheduler','inspect',args.issue)
     elif args.command=='pause':
         if args.issue: run('/opt/homebrew/bin/gh','issue','edit',args.issue,'--repo',REPO,'--add-label','agent:paused')
         else: run(BIN,'scheduler','disable')
         print('Pause requested. Active work stops at its next successful control check or control-access failure.')
+    elif args.command=='accept':
+        if not args.issue or not args.evidence: p.error('accept requires issue and --evidence FILE')
+        run(BIN,'scheduler','review',args.issue,'--evidence',args.evidence,'--decision','accept')
     elif args.command=='resume':
         if not args.issue: p.error('resume requires an issue number; review saved work first')
+        if args.evidence:
+            run(BIN,'scheduler','review',args.issue,'--evidence',args.evidence,'--decision','retry')
         run(BIN,'scheduler','approve',args.issue)
         run('/opt/homebrew/bin/gh','issue','edit',args.issue,'--repo',REPO,'--remove-label','agent:paused','--add-label','agent:ready')
         print('One attempt authorized. Global pause or other blocking labels still apply.')

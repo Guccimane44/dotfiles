@@ -47,7 +47,9 @@ class SchedulerTests(unittest.TestCase):
             s.tick(); s.tick()
             self.assertEqual(worker.call_count, 1)
         self.assertEqual(s.load()['jobs']['5']['status'], 'needs-approval')
-        s.approve(5)
+        state = s.load(); state['jobs']['5']['review'] = {'decision': 'retry', 'revision': 'reviewed'}; s.persist(state)
+        with patch.object(s, 'review_snapshot', return_value=('reviewed', {})):
+            s.approve(5)
         self.assertEqual(s.load()['jobs']['5']['status'], 'approved')
 
     def test_restart_reconciles_without_new_model_attempt(self):

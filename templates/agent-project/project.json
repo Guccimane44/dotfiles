@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "repository": "",
+  "default_branch": "",
+  "scope": "",
+  "stack": "",
+  "setup": [],
+  "checks": [],
+  "policy": {
+    "workers": 1,
+    "attempt_minutes": 20,
+    "weekly_reserve": 3,
+    "short_reserve": 25,
+    "retry_authority": "supervising-agent",
+    "automatic_publication": false,
+    "dispatch_enabled": false
+  }
+}

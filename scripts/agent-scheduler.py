@@ -4,6 +4,7 @@ import argparse
 import contextlib
 import fcntl
 import importlib.util
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -105,6 +106,13 @@ def publish(issue, status, note):
     folder = a.location(REPO, issue)
     checkpoint = folder / 'checkout/.agent-work/checkpoint.md'
     body = f'{a.MARKER}\n## Agent workpad\n\nStatus: **{status}**\nUpdated: {a.stamp()}\n\n{note}\n'
+    feedback_path = folder / 'feedback.json'
+    if feedback_path.exists():
+        feedback = json.loads(feedback_path.read_text())
+        body += ('\nFeedback acknowledged: changes to the issue or comments were detected at '
+                 + feedback['detected_at'] + '. The attempt stopped for review; acknowledgment does not mean implementation.\n')
+        if feedback['comment_ids']:
+            body += 'Observed comment IDs: ' + ', '.join(str(i) for i in feedback['comment_ids'][-20:]) + '.\n'
     if checkpoint.exists():
         body += '\n' + checkpoint.read_text()[:16000]
     state_path = folder / 'state.json'
@@ -142,6 +150,9 @@ def monitor(issue, baseline):
         except RuntimeError:
             return 'paused'
         if fingerprint(snap) != baseline:
+            a.save(a.location(REPO, issue)/'feedback.json', {
+                'detected_at': a.stamp(), 'fingerprint': fingerprint(snap),
+                'comment_ids': [c['id'] for c in snap.get('comments', []) if 'id' in c]})
             return 'feedback-received'
         try:
             a.quota_guard(a.quota(), QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])
@@ -194,6 +205,16 @@ def tick():
                 persist(state)
                 flush(state)
                 continue
+            if job['status'] == 'approved':
+                try:
+                    revision, _ = review_snapshot(issue)
+                    if job.get('review', {}).get('revision') != revision:
+                        raise RuntimeError('Workspace or feedback changed after retry review')
+                except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
+                    job.update(status='needs-approval', publication=['needs-approval', str(error) + '. Review again before retrying.'])
+                    state['jobs'][key] = job
+                    persist(state); flush(state)
+                    continue
             try:
                 data = a.quota()
                 a.quota_guard(data, QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])
@@ -234,6 +255,69 @@ def tick():
             return  # At most one attempt per invocation.
 
 
+def review_snapshot(issue):
+    folder, worker = a.read_state(argparse.Namespace(repo=REPO, issue=issue))
+    workspace = Path(worker['workspace'])
+    if not workspace.is_dir():
+        raise RuntimeError('Saved workspace is missing')
+    # Include HEAD, index and every nonignored working file, including untracked files.
+    files = subprocess.check_output(['git', '-C', str(workspace), 'ls-files', '-co', '--exclude-standard', '-z']).split(b'\0')
+    entries = {}
+    for raw in sorted(set(files) - {b''}):
+        name = os.fsdecode(raw)
+        path = workspace / name
+        if not path.parent.resolve().is_relative_to(workspace.resolve()):
+            raise RuntimeError('Tracked path escapes through a directory symlink')
+        if path.is_symlink():
+            value = 'symlink:' + os.readlink(path)
+        elif path.is_file():
+            value = hashlib.sha256(path.read_bytes()).hexdigest() + ':' + str(path.stat().st_mode & 0o777)
+        elif path.exists():
+            raise RuntimeError('Review of submodules or special files requires a separate policy')
+        else:
+            value = 'deleted'
+        entries[name] = value
+    index = subprocess.check_output(['git', '-C', str(workspace), 'ls-files', '--stage', '-z'])
+    snap, _ = a.snapshot(REPO, issue)
+    data = {'head': a.git(workspace, 'rev-parse', 'HEAD'),
+            'branch': a.git(workspace, 'branch', '--show-current'),
+            'files': entries, 'index': hashlib.sha256(index).hexdigest(),
+            'feedback': fingerprint(snap), 'attempt': worker['attempts']}
+    return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest(), data
+
+
+def record_review(issue, evidence_path, decision):
+    with scheduler_lock(), a.lock():
+        state = load()
+        job = state['jobs'].get(str(issue), {})
+        if job.get('status') not in ('needs-review', 'needs-approval'):
+            raise RuntimeError('Only stopped work can be reviewed')
+        evidence = json.loads(Path(evidence_path).read_text())
+        revision, snapshot = review_snapshot(issue)
+        if evidence.get('revision') != revision:
+            raise RuntimeError('Review evidence is stale; inspect current changes and feedback again')
+        checks = evidence.get('checks')
+        if not isinstance(checks, list) or not checks:
+            raise RuntimeError('Review requires actual check results')
+        for check in checks:
+            if not isinstance(check, dict) or not check.get('name') or not check.get('evidence') or check.get('result') not in ('passed', 'failed', 'skipped'):
+                raise RuntimeError('Each check needs name, result and evidence')
+        if decision == 'accept' and any(c['result'] != 'passed' for c in checks):
+            raise RuntimeError('Acceptance requires passing checks; resolve failures or skipped checks')
+        if not isinstance(evidence.get('summary'), str) or not evidence['summary'].strip():
+            raise RuntimeError('Explain the review conclusion and next action')
+        record = {'revision': revision, 'head': snapshot['head'], 'decision': decision,
+                  'reviewed_at': a.stamp(), 'reviewer': 'supervising-agent', 'evidence': evidence}
+        a.save(a.location(REPO, issue)/'review.json', record)
+        job['review'] = record
+        if decision == 'accept':
+            job['status'] = 'accepted'
+            job['publication'] = ['accepted', 'Supervising-agent review accepted workspace revision ' + revision +
+                                  ' at HEAD ' + snapshot['head'] + '. Review evidence is retained locally. No merge or deployment was performed.']
+        persist(state)
+        print('Review recorded for ' + revision + '. No code published.')
+
+
 def approve(issue):
     with scheduler_lock(), a.lock():
         state = load()
@@ -245,6 +329,10 @@ def approve(issue):
             worker = json.loads(saved.read_text())
             if worker.get('attempts') and not worker.get('session_id'):
                 raise RuntimeError('Missing saved session ID: recover deliberately; no fresh automatic run')
+        review = state['jobs'][key].get('review', {})
+        revision, _ = review_snapshot(issue)
+        if review.get('decision') != 'retry' or review.get('revision') != revision:
+            raise RuntimeError('A current retry review is required; inspect and record evidence first')
         state['jobs'][key].update(status='approved', approved_at=a.stamp())
         persist(state)
         print('One additional attempt authorized; issue must also have agent:ready and no blocking labels.')
@@ -280,8 +368,10 @@ def install(entrypoint=None):
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['tick', 'status', 'enable', 'disable', 'approve', 'install'])
+    parser.add_argument('command', choices=['tick', 'status', 'enable', 'disable', 'approve', 'install', 'inspect', 'review'])
     parser.add_argument('issue', type=int, nargs='?')
+    parser.add_argument('--evidence')
+    parser.add_argument('--decision', choices=['accept', 'retry'])
     args = parser.parse_args()
     signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
@@ -302,6 +392,15 @@ def main():
             paths()[2].touch(mode=0o600)
         elif args.command == 'disable':
             paths()[2].unlink(missing_ok=True)
+        elif args.command == 'inspect':
+            if not args.issue or args.issue < 1: parser.error('inspect requires a positive issue number')
+            with scheduler_lock(), a.lock():
+                revision, snapshot = review_snapshot(args.issue)
+                print(json.dumps({'revision': revision, 'snapshot': snapshot}, indent=2))
+        elif args.command == 'review':
+            if not args.issue or args.issue < 1 or not args.evidence or not args.decision:
+                parser.error('review requires issue, --evidence FILE and --decision accept|retry')
+            record_review(args.issue, args.evidence, args.decision)
         elif args.command == 'approve':
             if not args.issue or args.issue < 1:
                 parser.error('approve needs a positive issue number')

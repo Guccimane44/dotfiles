@@ -12,3 +12,8 @@ This template does not register a repository or enable dispatch.
 - Validate the exact proposed commit before publishing a PR; preserve human merge authority.
 
 Vocabularium is intentionally not registered by this infrastructure template.
+
+Fill in `project.json` and run `agent-work project validate /absolute/path/project.json`.
+The supplied template is intentionally incomplete. Passing validates structure only;
+you must still execute the declared setup/checks and demonstrate recovery. Keep dispatch
+disabled during onboarding. See the dotfiles `docs/reviews.md` for review evidence format.
