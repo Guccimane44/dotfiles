@@ -1,0 +1,11 @@
+# Operator rollout validation — 2026-09-07
+
+- Reviewed Phase 2 implementation and passing CI at dbe80bffa7381e87ab14068c29033cb10f086c8d; it remains a draft PR, unmerged.
+- Live GitHub issue #7: `agent:paused` prevented dispatch; removing it enabled one attempt. An explicit approval then resumed the same saved session with new GitHub feedback and retained RECOVERY_CHECKPOINT_1. Both attempts left tracked files unchanged. Durations: 41 and 24 seconds. This does not prove lower cost than a fresh-session baseline.
+- The first live worker completed its turn before feedback was sent, so that run did NOT validate interruption during active model work. A separate controlled real subprocess test exercised monitor-triggered stop, cooperative stop-file creation, termination within the bound, retained session/checkpoint, and unknown interrupted usage. Other tests cover feedback detection and quota/API failures. These are separate pieces of evidence, not a claim of a live end-to-end quota exhaustion test.
+- 23 local tests pass. Authored Python compiles, the shell wrapper parses, and Herdr TOML parses. Nix system build passes with the configuration-file-only link. Preserved vendor Markdown contains upstream trailing whitespace; authored-file diff checks exclude vendor content.
+- Herdr 0.8.2: dedicated `dotfiles` session created from a real terminal, operator layout commands executed inside its pane. Verified review, status, and worker-output panes; moved views into separate tabs for the narrow test terminal. Duplicate setup is rejected. Client detach leaves the session server available.
+- All 92 vendored skill files match the lock. Codex App Server `skills/list` reports the three profile skills enabled in the isolated React test environment. This was a discovery check with no model turn, not evidence of behavioral skill use during a scheduled task.
+- The optional four-run skills comparison is prepared but has not been run; quota authorization is pending. The supplied skill validator is also pending permission for its missing temporary PyYAML dependency. Its inability to run is not represented as a passing check.
+
+Project registration remains dotfiles-only. The React fixture and onboarding template do not authorize Vocabularium work. No automatic code publication or merge was added.

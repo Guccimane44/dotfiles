@@ -378,16 +378,18 @@ def main():
             p.add_argument('--reserve', type=int, default=15)
         if name == 'sync':
             p.add_argument('--publish', action='store_true')
-    sp = subs.add_parser('scheduler')
-    sp.add_argument('scheduler_args', nargs=argparse.REMAINDER)
+    for extra in ('scheduler', 'console', 'skills'):
+        sp = subs.add_parser(extra)
+        sp.add_argument('scheduler_args', nargs=argparse.REMAINDER)
     subs.add_parser('quota')
     args = parser.parse_args()
     if args.command == 'run' and (not 1 <= args.minutes <= 120 or not 5 <= args.reserve <= 95):
         parser.error('minutes must be 1–120; reserve must be 5–95 percent')
     os.umask(0o077)
     try:
-        if args.command == 'scheduler':
-            os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name('agent-scheduler.py')), *args.scheduler_args])
+        if args.command in ('scheduler', 'console', 'skills'):
+            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py'}[args.command]
+            os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name(module)), *args.scheduler_args])
         elif args.command == 'quota':
             print(json.dumps(quota(), indent=2))
         else:

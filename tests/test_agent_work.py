@@ -76,6 +76,26 @@ class InfrastructureTests(unittest.TestCase):
                 child.communicate(timeout=5)
             with a.lock(): pass
 
+    def test_feedback_stops_real_child_and_preserves_session(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(a, 'ROOT', Path(tmp)/'state'):
+            work=Path(tmp)/'repo'; work.mkdir(); (work/'.agent-work').mkdir()
+            (work/'.agent-work/checkpoint.md').write_text('Durable checkpoint')
+            folder=a.location('owner/repo',1)
+            a.save(folder/'state.json',{'workspace':str(work),'branch':'agent/issue-1','attempts':0,'session_id':None})
+            fake=Path(tmp)/'codex'
+            fake.write_text('#!/usr/bin/env python3\nimport json,time,sys\nsys.stdin.read()\nprint(json.dumps({"type":"thread.started","thread_id":"preserved"}),flush=True)\ntime.sleep(60)\n')
+            fake.chmod(0o700)
+            args=argparse.Namespace(repo='owner/repo',issue=1,minutes=1,reserve=25,monitor=lambda *_:'feedback-received')
+            with patch.object(a,'tool',return_value=str(fake)), patch.object(a,'git',side_effect=lambda path,*args:'agent/issue-1' if args[0]=='branch' else 'abc'), patch.object(a,'quota',return_value={'rateLimits':{'primary':{'usedPercent':0}}}), patch.object(a,'snapshot',return_value=({'state':'open','labels':[]},[])), contextlib.redirect_stdout(io.StringIO()):
+                a.run(args)
+            state=json.loads((folder/'state.json').read_text())
+            self.assertEqual(state['status'],'feedback-received')
+            self.assertEqual(state['session_id'],'preserved')
+            self.assertLess(state['last_elapsed_seconds'],15)
+            self.assertFalse(state['history'][0]['usage_complete'])
+            self.assertIn('feedback-received',(work/'.agent-work/stop-request.txt').read_text())
+            self.assertEqual((work/'.agent-work/checkpoint.md').read_text(),'Durable checkpoint')
+
     def test_atomic_state_has_private_permissions(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp)/'state.json'

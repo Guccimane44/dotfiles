@@ -71,3 +71,7 @@ python3 -m py_compile scripts/agent-work.py
 The tests use fake agents and temporary Git repositories, with no model calls. They cover session reuse after failure, work preservation, concurrency exclusion, issue pause state, quota reserve, path validation, and private atomic state writes.
 
 See [the staged rollout](docs/rollout.md). Vocabularium is not registered or modified by this setup.
+
+## Operator workspace and skills
+
+See [Herdr controls and pinned project skills](docs/operator.md). Project onboarding templates and the optional small evaluation live in `templates/agent-project` and `evaluations`.

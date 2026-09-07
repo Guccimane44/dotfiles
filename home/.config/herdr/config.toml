@@ -1,0 +1,28 @@
+# Authored configuration only; runtime files stay outside the repository.
+onboarding = false
+[theme]
+name = "catppuccin"
+[terminal]
+new_cwd = "follow"
+[update]
+version_check = false
+manifest_check = false
+[ui]
+status_indicators = "symbols"
+confirm_close = true
+[[keys.command]]
+key = "prefix+alt+s"
+type = "popup"
+command = "~/.dotfiles/scripts/agent-console status --watch"
+width = "90%"
+height = "80%"
+[[keys.command]]
+key = "prefix+alt+p"
+type = "popup"
+command = "~/.dotfiles/scripts/agent-console pause"
+[[keys.command]]
+key = "prefix+alt+g"
+type = "popup"
+command = "cd ~/.dotfiles && lazygit"
+width = "90%"
+height = "80%"

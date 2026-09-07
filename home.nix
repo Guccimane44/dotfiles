@@ -78,7 +78,7 @@ in
   home.file = lib.mkMerge [
     (optionalFile "home/.config/wezterm" ".config/wezterm")
     (optionalFile "home/.config/nvim" ".config/nvim")
-    (optionalFile "home/.config/herdr" ".config/herdr")
+    (optionalFile "home/.config/herdr/config.toml" ".config/herdr/config.toml")
     (optionalFile "home/.claude/settings.json" ".claude/settings.json")
 
     # Keep Pi's credential and runtime state local by linking only authored files and directories.
