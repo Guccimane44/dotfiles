@@ -18,6 +18,10 @@ in
   home.packages = with pkgs; [
     (pkgs.writeShellScriptBin "agent-work" ''
       export PATH="${pkgs.git}/bin:/opt/homebrew/bin:$PATH"
+      runtime="$HOME/.local/share/agent-work/launch.py"
+      if [ -f "$runtime" ]; then
+        exec ${pkgs.python3}/bin/python3 "$runtime" "$@"
+      fi
       exec ${pkgs.python3}/bin/python3 "${dotfiles}/scripts/agent-work.py" "$@"
     '')
     (pkgs.writeShellScriptBin "codex" ''

@@ -75,3 +75,9 @@ See [the staged rollout](docs/rollout.md). Vocabularium is not registered or mod
 ## Operator workspace and skills
 
 See [Herdr controls and pinned project skills](docs/operator.md). Project onboarding templates and the optional small evaluation live in `templates/agent-project` and `evaluations`.
+
+## Stable runtime
+
+See [runtime activation, health, rollback, and recovery](docs/runtime.md).
+After deployment, `agent-work release health` reports the installed release and
+scheduler health without starting a model turn.

@@ -72,6 +72,12 @@ class InfrastructureTests(unittest.TestCase):
                 state = json.loads((folder/'state.json').read_text())
                 self.assertEqual(state['status'], 'needs-review')
                 self.assertEqual(state['attempts'], 2)
+            self.assertEqual(len(state['history']), 2)
+            self.assertFalse(state['history'][0]['usage_complete'])
+            self.assertTrue(state['history'][1]['usage_complete'])
+            self.assertEqual(state['history'][1]['usage'], {'output_tokens': 10})
+            self.assertIn('Completed investigation', json.loads((folder/'checkpoint-2-before.json').read_text())['text'])
+            self.assertIn('Completed investigation', json.loads((folder/'checkpoint-2-after.json').read_text())['text'])
             self.assertIn('Completed investigation', (work/'.agent-work/checkpoint.md').read_text())
 
     def test_worker_inherits_lock_after_parent_releases_descriptor(self):
@@ -105,6 +111,23 @@ class InfrastructureTests(unittest.TestCase):
             self.assertFalse(state['history'][0]['usage_complete'])
             self.assertIn('feedback-received',(work/'.agent-work/stop-request.txt').read_text())
             self.assertEqual((work/'.agent-work/checkpoint.md').read_text(),'Durable checkpoint')
+
+    def test_failed_launch_retains_attempt_and_unknown_usage(self):
+        with tempfile.TemporaryDirectory() as tmp, patch.object(a, 'ROOT', Path(tmp)/'state'):
+            work = Path(tmp)/'repo'; work.mkdir(); (work/'.agent-work').mkdir()
+            (work/'.agent-work/checkpoint.md').write_text('Saved milestone')
+            folder = a.location('owner/repo', 1)
+            a.save(folder/'state.json', {'workspace': str(work), 'branch': 'branch',
+                                        'attempts': 0, 'session_id': None, 'last_usage': {'output_tokens': 999}})
+            args = argparse.Namespace(repo='owner/repo', issue=1, minutes=1, reserve=25)
+            with patch.object(a, 'git', return_value='branch'), patch.object(a, 'tool', return_value='/missing/codex'), patch.object(a, 'quota', return_value={'rateLimits': {'primary': {'usedPercent': 0}}}), patch.object(a, 'snapshot', return_value=({'state': 'open', 'labels': []}, [])):
+                with self.assertRaises(OSError): a.run(args)
+            state = json.loads((folder/'state.json').read_text())
+            self.assertEqual(state['attempts'], 1)
+            self.assertEqual(state['history'][0]['status'], 'launch-failed')
+            self.assertIsNone(state['history'][0]['usage'])
+            self.assertNotIn('last_usage', state)
+            self.assertEqual(json.loads((folder/'checkpoint-1-before.json').read_text())['text'], 'Saved milestone')
 
     def test_atomic_state_has_private_permissions(self):
         with tempfile.TemporaryDirectory() as tmp:

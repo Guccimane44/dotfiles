@@ -14,6 +14,7 @@ import signal
 import subprocess
 import sys
 import threading
+import tempfile
 import time
 
 ROOT = Path(os.environ.get('AGENT_WORK_STATE', str(Path.home() / '.local/state/agent-work'))).expanduser().resolve()
@@ -53,10 +54,21 @@ def stamp():
 
 def save(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    tmp = path.with_suffix('.tmp')
-    tmp.write_text(json.dumps(obj, indent=2) + '\n')
-    tmp.chmod(0o600)
-    tmp.replace(path)
+    fd, name = tempfile.mkstemp(prefix=path.name + '.', dir=path.parent)
+    tmp = Path(name)
+    try:
+        with os.fdopen(fd, 'w') as out:
+            out.write(json.dumps(obj, indent=2) + '\n')
+            out.flush()
+            os.fsync(out.fileno())
+        tmp.replace(path)
+        directory = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        tmp.unlink(missing_ok=True)
 
 
 def location(repo, issue):
@@ -253,26 +265,40 @@ def run(args):
                 '-c', 'approval_policy="never"', '-c', 'model_reasoning_effort="medium"',
                 '--model', MODEL, '--json', '--output-last-message', str(workspace / '.agent-work/last-message.md'), '-']
         state.update(status='running', attempts=state['attempts'] + 1, updated_at=stamp())
+        state.pop('last_usage', None)
+        state.setdefault('history', []).append({
+            'attempt': state['attempts'], 'status': 'running', 'started_at': stamp(),
+            'usage': None, 'usage_complete': False})
+        checkpoint = workspace / '.agent-work/checkpoint.md'
+        if checkpoint.exists():
+            save(folder / f'checkpoint-{state["attempts"]}-before.json',
+                 {'saved_at': stamp(), 'text': checkpoint.read_text()})
         save(folder / 'state.json', state)
         log = folder / f'attempt-{state["attempts"]}.jsonl'
         env = dict(os.environ)
         # Reuse subscription auth; never silently switch to an inherited API key.
         env.pop('OPENAI_API_KEY', None)
         started = time.monotonic()
-        p = subprocess.Popen(cmd, cwd=workspace, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, text=True, env=env, start_new_session=True, pass_fds=(lock_fd,))
+        try:
+            p = subprocess.Popen(cmd, cwd=workspace, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, text=True, env=env, start_new_session=True, pass_fds=(lock_fd,))
+        except OSError:
+            state.update(status='launch-failed', updated_at=stamp())
+            state['history'][-1].update(status='launch-failed', finished_at=stamp())
+            save(folder / 'state.json', state)
+            raise
         events = queue.Queue()
         def stream():
             for line in p.stdout:
                 events.put(line)
             events.put(None)
         threading.Thread(target=stream, daemon=True).start()
-        p.stdin.write(prompt); p.stdin.close()
         outcome = 'needs-review'
         completed = False
         next_monitor = time.monotonic()
         stop_deadline = None
         try:
+            p.stdin.write(prompt); p.stdin.close()
             with log.open('w') as out:
                 while True:
                     now = time.monotonic()
@@ -317,6 +343,9 @@ def run(args):
         except KeyboardInterrupt:
             outcome = 'paused'
         finally:
+            if not p.stdin.closed:
+                with contextlib.suppress(BrokenPipeError):
+                    p.stdin.close()
             if p.poll() is None:
                 os.killpg(p.pid, signal.SIGTERM)
                 try:
@@ -326,14 +355,21 @@ def run(args):
             p.stdout.close()
             if outcome == 'needs-review' and (p.returncode != 0 or not completed):
                 outcome = 'interrupted'
+            try:
+                head = git(workspace, 'rev-parse', 'HEAD')
+            except (RuntimeError, OSError, subprocess.SubprocessError):
+                head = None
             state.update(status=outcome, updated_at=stamp(), exit_code=p.returncode,
-                         last_elapsed_seconds=round(time.monotonic()-started), head=git(workspace, 'rev-parse', 'HEAD'))
-            state.setdefault('history', []).append({
+                         last_elapsed_seconds=round(time.monotonic()-started), head=head)
+            state['history'][-1].update({
                 'attempt': state['attempts'], 'status': outcome,
                 'elapsed_seconds': state['last_elapsed_seconds'],
                 'usage': state.get('last_usage') if completed else None,
                 'usage_complete': completed, 'finished_at': stamp(), 'head': state['head']})
             save(folder / 'state.json', state)
+            if checkpoint.exists():
+                save(folder / f'checkpoint-{state["attempts"]}-after.json',
+                     {'saved_at': stamp(), 'text': checkpoint.read_text()})
         print(f'Status: {outcome}. Saved session: {state["session_id"]}. No changes published.')
 
 
@@ -373,6 +409,9 @@ def status(args):
 
 
 def main():
+    deployed = Path.home() / '.local/share/agent-work/launch.py'
+    if deployed.exists() and not os.environ.get('AGENT_WORK_DEPLOYED') and not os.environ.get('AGENT_WORK_SOURCE'):
+        os.execv(sys.executable, [sys.executable, str(deployed), *sys.argv[1:]])
     parser = argparse.ArgumentParser(description=__doc__)
     subs = parser.add_subparsers(dest='command', required=True)
     for name in ('prepare', 'run', 'status', 'sync'):
@@ -385,7 +424,7 @@ def main():
             p.add_argument('--weekly-reserve', type=int, default=3)
         if name == 'sync':
             p.add_argument('--publish', action='store_true')
-    for extra in ('scheduler', 'console', 'skills'):
+    for extra in ('scheduler', 'console', 'skills', 'release'):
         sp = subs.add_parser(extra)
         sp.add_argument('scheduler_args', nargs=argparse.REMAINDER)
     subs.add_parser('quota')
@@ -394,8 +433,8 @@ def main():
         parser.error('minutes must be 1–120; short-window reserve 5–95; weekly reserve 1–95 percent')
     os.umask(0o077)
     try:
-        if args.command in ('scheduler', 'console', 'skills'):
-            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py'}[args.command]
+        if args.command in ('scheduler', 'console', 'skills', 'release'):
+            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py','release':'agent-release.py'}[args.command]
             os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name(module)), *args.scheduler_args])
         elif args.command == 'quota':
             print(json.dumps(quota(), indent=2))

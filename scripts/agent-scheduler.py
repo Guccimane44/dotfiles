@@ -17,7 +17,7 @@ spec = importlib.util.spec_from_file_location('agent_work', Path(__file__).with_
 a = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(a)
 REPO = 'Guccimane44/dotfiles'
-SOURCE = Path.home() / '.dotfiles'
+SOURCE = Path.home() / '.local/state/agent-work/scheduler-source'
 # One fixed lock/state domain on this Mac, shared with the manual launcher.
 a.ROOT = Path.home() / '.local/state/agent-work'
 SERVICE = 'local.agent-work.scheduler'
@@ -47,6 +47,33 @@ def scheduler_lock():
         except BlockingIOError:
             raise RuntimeError('Scheduler is already active')
         yield
+
+
+def heartbeat(status, detail=''):
+    a.save(paths()[0] / 'heartbeat.json', {'epoch': time.time(), 'updated_at': a.stamp(),
+                                          'status': status, 'detail': detail})
+
+
+def rotate_logs(limit=2 * 1024 * 1024):
+    # Copy/truncate preserves launchd's open log descriptors. Keep two older copies.
+    import shutil
+    for name in ('service.log', 'service-error.log'):
+        path = paths()[0] / name
+        if path.exists() and path.stat().st_size > limit:
+            older = path.with_name(name + '.1')
+            if older.exists():
+                older.replace(path.with_name(name + '.2'))
+            shutil.copyfile(path, older)
+            with path.open('w'):
+                pass
+
+
+def ensure_source():
+    if not SOURCE.exists():
+        SOURCE.parent.mkdir(parents=True, exist_ok=True)
+        a.call(['git', 'clone', 'https://github.com/' + REPO + '.git', str(SOURCE)])
+    # prepare also verifies repository identity and a clean checkout before use.
+    return SOURCE
 
 
 def fingerprint(snap):
@@ -106,6 +133,7 @@ def flush(state):
 def monitor(issue, baseline):
     last_publish = [time.monotonic()]
     def check(worker, initial):
+        heartbeat('running', f'Issue #{issue}')
         if not paths()[2].exists():
             return 'paused'
         snap, _ = a.snapshot(REPO, issue)
@@ -186,6 +214,7 @@ def tick():
             args = argparse.Namespace(repo=REPO, issue=issue, checkout=str(SOURCE), minutes=20, reserve=QUOTA_POLICY['short_reserve'], weekly_reserve=QUOTA_POLICY['weekly_reserve'])
             try:
                 if not saved.exists():
+                    args.checkout = str(ensure_source())
                     a.prepare(args)
                 # Publish before starting so lack of tracker write access prevents invisible work.
                 publish(issue, 'starting', 'Starting one GPT-6 Astra attempt with a 20-minute limit and quota monitoring. Routine review belongs to the supervising agent; high-level architectural choices go to the user. Publication remains within the task authorization.')
@@ -221,20 +250,30 @@ def approve(issue):
         print('One additional attempt authorized; issue must also have agent:ready and no blocking labels.')
 
 
-def install():
+def install(entrypoint=None):
     # Nix's Python is supplied by the Nix-managed agent-scheduler launcher.
     target = Path.home() / 'Library/LaunchAgents' / (SERVICE + '.plist')
     target.parent.mkdir(parents=True, exist_ok=True)
     root = paths()[0]
-    obj = {'Label': SERVICE, 'ProgramArguments': [str(Path.home() / '.nix-profile/bin/python3') if (Path.home() / '.nix-profile/bin/python3').exists() else '/etc/profiles/per-user/' + Path.home().name + '/bin/python3', str(Path(__file__).resolve()), 'tick'],
+    obj = {'Label': SERVICE, 'ProgramArguments': [str(Path.home() / '.nix-profile/bin/python3') if (Path.home() / '.nix-profile/bin/python3').exists() else '/etc/profiles/per-user/' + Path.home().name + '/bin/python3', *([str(entrypoint), 'scheduler', 'tick'] if entrypoint else [str(Path(__file__).resolve()), 'tick'])],
            'StartInterval': 60, 'RunAtLoad': True, 'ProcessType': 'Background',
-           'WorkingDirectory': str(SOURCE.resolve()),
+           'WorkingDirectory': str(root),
            'EnvironmentVariables': {'PATH': '/etc/profiles/per-user/' + Path.home().name + '/bin:/opt/homebrew/bin:/usr/bin:/bin'},
            'StandardOutPath': str(root/'service.log'), 'StandardErrorPath': str(root/'service-error.log')}
-    target.write_bytes(plistlib.dumps(obj)); target.chmod(0o600)
+    previous = target.read_bytes() if target.exists() else None
     service = f'gui/{os.getuid()}/{SERVICE}'
-    subprocess.run(['launchctl', 'bootout', service], capture_output=True)
-    subprocess.run(['launchctl', 'bootstrap', f'gui/{os.getuid()}', str(target)], check=True)
+    try:
+        target.write_bytes(plistlib.dumps(obj)); target.chmod(0o600)
+        subprocess.run(['launchctl', 'bootout', service], capture_output=True)
+        subprocess.run(['launchctl', 'bootstrap', f'gui/{os.getuid()}', str(target)], check=True)
+    except BaseException:
+        if previous:
+            target.write_bytes(previous)
+            subprocess.run(['launchctl', 'bootout', service], capture_output=True)
+            subprocess.run(['launchctl', 'bootstrap', f'gui/{os.getuid()}', str(target)], capture_output=True)
+        else:
+            target.unlink(missing_ok=True)
+        raise
     print('Installed login-session scheduler. Use enable/disable to control dispatch; laptop sleep pauses polling.')
 
 
@@ -247,7 +286,16 @@ def main():
     signal.signal(signal.SIGTERM, lambda *_: (_ for _ in ()).throw(KeyboardInterrupt()))
     try:
         if args.command == 'tick':
-            tick()
+            heartbeat('checking')
+            try:
+                tick()
+                heartbeat('idle' if paths()[2].exists() else 'disabled')
+            except Exception as error:
+                heartbeat('error', str(error))
+                raise
+            finally:
+                sys.stdout.flush(); sys.stderr.flush()
+                rotate_logs()
         elif args.command == 'status':
             print(json.dumps({'enabled': paths()[2].exists(), **load()}, indent=2))
         elif args.command == 'enable':
@@ -259,7 +307,9 @@ def main():
                 parser.error('approve needs a positive issue number')
             approve(args.issue)
         elif args.command == 'install':
-            install()
+            with scheduler_lock(), a.lock():
+                entry = Path.home() / '.local/share/agent-work/launch.py'
+                install(entry if entry.exists() else None)
     except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
         # API outages fail closed. launchd retries control-plane reads only, never spent attempts.
         print(f'agent-scheduler: {error}', file=sys.stderr)
