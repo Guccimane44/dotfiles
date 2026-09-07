@@ -1,0 +1,145 @@
+{
+  "model": "gpt-6-astra",
+  "cli": "codex-cli 0.153.4",
+  "attempt_cap": 6,
+  "attempt_seconds": 300,
+  "started_at": "2026-09-07T23:25:20+00:00",
+  "attempts": [
+    {
+      "fixture": "duration",
+      "condition": "raw",
+      "source_sha256": "e95745d6c065cee0e73d3949ed2128fb49761d52327190bf1d0ab0d1b437bce1",
+      "status": "completed",
+      "started_at": "2026-09-07T23:25:20+00:00",
+      "usage": {
+        "input_tokens": 63879,
+        "cached_input_tokens": 55552,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 683,
+        "reasoning_output_tokens": 0
+      },
+      "elapsed_seconds": 31.459,
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "additional_artifacts": []
+    },
+    {
+      "fixture": "duration",
+      "condition": "harness",
+      "source_sha256": "e95745d6c065cee0e73d3949ed2128fb49761d52327190bf1d0ab0d1b437bce1",
+      "status": "needs-review",
+      "started_at": "2026-09-07T23:25:52+00:00",
+      "usage": {
+        "input_tokens": 83810,
+        "cached_input_tokens": 73216,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1450,
+        "reasoning_output_tokens": 11
+      },
+      "checkpoint_written": true,
+      "elapsed_seconds": 58.186,
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "additional_artifacts": []
+    },
+    {
+      "fixture": "dedupe",
+      "condition": "harness",
+      "source_sha256": "56b53d4a11afdad8b0e0091a8ceaea0a0a12c2363f0e859c798da8e488808aaf",
+      "status": "needs-review",
+      "started_at": "2026-09-07T23:26:51+00:00",
+      "usage": {
+        "input_tokens": 99862,
+        "cached_input_tokens": 89728,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1235,
+        "reasoning_output_tokens": 0
+      },
+      "checkpoint_written": true,
+      "elapsed_seconds": 53.124,
+      "correct": true,
+      "grader_output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "additional_artifacts": []
+    },
+    {
+      "fixture": "dedupe",
+      "condition": "raw",
+      "source_sha256": "56b53d4a11afdad8b0e0091a8ceaea0a0a12c2363f0e859c798da8e488808aaf",
+      "status": "completed",
+      "started_at": "2026-09-07T23:27:46+00:00",
+      "usage": {
+        "input_tokens": 63870,
+        "cached_input_tokens": 55680,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 637,
+        "reasoning_output_tokens": 0
+      },
+      "elapsed_seconds": 31.39,
+      "correct": true,
+      "grader_output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "additional_artifacts": []
+    },
+    {
+      "fixture": "retry",
+      "condition": "raw",
+      "source_sha256": "08fd7dc4b37d2c828e10c9961acb9b738b82bdf8114c988f89b9c19deac05ea7",
+      "status": "completed",
+      "started_at": "2026-09-07T23:28:18+00:00",
+      "usage": {
+        "input_tokens": 63995,
+        "cached_input_tokens": 55424,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 769,
+        "reasoning_output_tokens": 119
+      },
+      "elapsed_seconds": 35.126,
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "additional_artifacts": []
+    },
+    {
+      "fixture": "retry",
+      "condition": "harness",
+      "source_sha256": "08fd7dc4b37d2c828e10c9961acb9b738b82bdf8114c988f89b9c19deac05ea7",
+      "status": "needs-review",
+      "started_at": "2026-09-07T23:28:54+00:00",
+      "usage": {
+        "input_tokens": 102485,
+        "cached_input_tokens": 95360,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1834,
+        "reasoning_output_tokens": 85
+      },
+      "checkpoint_written": true,
+      "elapsed_seconds": 73.255,
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "additional_artifacts": [
+        "test_task.py"
+      ]
+    }
+  ],
+  "status": "complete",
+  "finished_at": "2026-09-07T23:30:07+00:00",
+  "scope": "Three paired synthetic infrastructure tasks; no interruption or full GitHub orchestration measurement.",
+  "totals": {
+    "raw": {
+      "input_tokens": 191744,
+      "cached_input_tokens": 166656,
+      "output_tokens": 2089,
+      "uncached_input_tokens": 25088,
+      "reported_input_plus_output": 193833,
+      "elapsed_seconds": 97.975,
+      "passed": 3
+    },
+    "harness": {
+      "input_tokens": 286157,
+      "cached_input_tokens": 258304,
+      "output_tokens": 4519,
+      "uncached_input_tokens": 27853,
+      "reported_input_plus_output": 290676,
+      "elapsed_seconds": 184.565,
+      "passed": 3
+    }
+  }
+}
