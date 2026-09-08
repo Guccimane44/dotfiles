@@ -19,7 +19,7 @@ agent-work console resume 7      # explicitly authorize ONE further attempt
 agent-work scheduler enable      # lift the global pause
 ```
 
-Review saved work before resume. Resume preserves global pause and other blocking labels. The existing one-worker lock and quota checks remain authoritative. When Herdr is attached: Ctrl-B then Q detaches; the mouse supports navigation and resizing. Optional shortcuts: Ctrl-B then Alt-S opens status, Alt-P requests a global pause, and Alt-G opens Git review. Ordinary commands above are the fallback if your terminal intercepts a shortcut.
+Review saved work before resume. Resume preserves global pause and other blocking labels. The per-issue locks and shared four-worker capacity and quota checks remain authoritative. When Herdr is attached: Ctrl-B then Q detaches; the mouse supports navigation and resizing. Optional shortcuts: Ctrl-B then Alt-S opens status, Alt-P requests a global pause, and Alt-G opens Git review. Ordinary commands above are the fallback if your terminal intercepts a shortcut.
 
 Herdr 0.8.2 remains Homebrew-managed by the Nix declarations. Only `config.toml` is linked into dotfiles; runtime logs and sessions stay local. Background update/manifest checks are disabled for deliberate package updates. Its complete native agent-control skill is not installed globally, because our scheduled workers must not launch their own helpers or control another session.
 

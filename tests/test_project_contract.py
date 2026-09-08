@@ -9,7 +9,7 @@ class ContractTests(unittest.TestCase):
     def valid(self):
         return {'schema':1, 'repository':'owner/repo', 'default_branch':'main', 'scope':'Fixture', 'stack':'Python 3',
                 'setup':['python3', '--version'], 'checks':[{'name':'tests', 'command':['python3', '-m', 'unittest']}],
-                'policy':{'workers':1, 'attempt_minutes':20, 'weekly_reserve':3, 'short_reserve':25,
+                'policy':{'workers':4, 'attempt_minutes':20, 'weekly_reserve':3, 'short_reserve':25,
                           'retry_authority':'supervising-agent', 'automatic_publication':False, 'dispatch_enabled':False}}
 
     def test_complete_contract_is_structurally_valid(self):

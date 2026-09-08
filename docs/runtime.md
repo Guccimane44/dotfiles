@@ -54,7 +54,7 @@ Service logs rotate after controller invocations at 2 MiB, keeping two backups.
 This is a retention threshold, not a hard disk cap during a running attempt. Task
 logs, checkpoints and session records are retained; deletion is a separate policy.
 The scheduler retains a 25% five-hour reserve and a **3% weekly reserve**, with
-20-minute attempts and one worker. Polling and stop grace periods mean these are
+20-minute attempts and up to four workers. Polling and stop grace periods mean these are
 protective thresholds, not exact spend caps.
 
 Tests cover failed writes, integrity changes, activation/rollback state preservation,

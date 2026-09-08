@@ -2,6 +2,7 @@
 """Manual GitHub issue dispatch using saved Codex sessions. Standard library only."""
 import argparse
 import contextlib
+import hashlib
 import datetime as dt
 import fcntl
 import json
@@ -18,6 +19,7 @@ import tempfile
 import time
 
 ROOT = Path(os.environ.get('AGENT_WORK_STATE', str(Path.home() / '.local/state/agent-work'))).expanduser().resolve()
+WORKER_LIMIT = 4
 MODEL = 'gpt-6-astra'
 MARKER = '<!-- agent-work:v1 -->'
 
@@ -92,8 +94,60 @@ def lock():
         try:
             fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            raise RuntimeError('Another agent-work operation is active; one worker is allowed')
+            raise RuntimeError('Another agent-work operation is active; runtime maintenance is exclusive')
         yield f.fileno()
+
+
+class WorkerBusy(RuntimeError):
+    pass
+
+
+@contextlib.contextmanager
+def task_lock(repo, issue, slot=True):
+    """Shared runtime lease plus exclusive issue/workspace lease and optional capacity slot.
+
+    Close descriptors rather than unlocking: inherited child descriptors retain all leases.
+    Legacy lock() remains the exclusive maintenance lease on the same worker.lock file.
+    """
+    ROOT.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with contextlib.ExitStack() as stack:
+        descriptors = []
+        def acquire(path, mode):
+            path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            file = stack.enter_context(path.open('a'))
+            fcntl.flock(file, mode | fcntl.LOCK_NB)
+            descriptors.append(file.fileno())
+        folder = location(repo, issue)
+        try:
+            acquire(ROOT/'worker.lock', fcntl.LOCK_SH)
+            acquire(folder/'operation.lock', fcntl.LOCK_EX)
+            saved = folder/'state.json'
+            state = json.loads(saved.read_text()) if saved.exists() else {}
+            workspace = Path(state.get('workspace', folder/'checkout')).resolve()
+            key = hashlib.sha256(str(workspace).encode()).hexdigest()
+            acquire(ROOT/'workspace-locks'/key, fcntl.LOCK_EX)
+        except BlockingIOError:
+            raise WorkerBusy('Issue/workspace is already active or runtime maintenance is in progress')
+        if slot:
+            for number in range(WORKER_LIMIT):
+                try:
+                    acquire(ROOT/'slots'/f'{number}.lock', fcntl.LOCK_EX)
+                    break
+                except BlockingIOError:
+                    continue
+            else:
+                raise WorkerBusy(f'All {WORKER_LIMIT} worker slots are occupied')
+        yield tuple(descriptors)
+
+
+@contextlib.contextmanager
+def preparation_lock(repo):
+    path = ROOT/repo/'preparation.lock'
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with path.open('a') as file:
+        try: fcntl.flock(file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError: raise WorkerBusy('Another worktree preparation is active for this repository')
+        yield
 
 
 def snapshot(repo, issue):
@@ -120,7 +174,7 @@ def eligible(snap):
 
 
 def prepare(args):
-    with lock():
+    with task_lock(args.repo, args.issue, slot=False), preparation_lock(args.repo):
         folder = location(args.repo, args.issue)
         if (folder / 'state.json').exists():
             raise RuntimeError('Already prepared; use status or run to resume')
@@ -271,7 +325,7 @@ def lean_prompt(snap, context):
 
 
 def run(args):
-    with lock() as lock_fd:
+    with task_lock(args.repo, args.issue) as lock_fds:
         folder, state = read_state(args)
         snap, _ = snapshot(args.repo, args.issue)
         eligible(snap)
@@ -325,7 +379,7 @@ def run(args):
         started = time.monotonic()
         try:
             p = subprocess.Popen(cmd, cwd=workspace, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT, text=True, env=env, start_new_session=True, pass_fds=(lock_fd,))
+                                 stderr=subprocess.STDOUT, text=True, env=env, start_new_session=True, pass_fds=lock_fds)
         except OSError:
             state.update(status='launch-failed', updated_at=stamp())
             state['history'][-1].update(status='launch-failed', finished_at=stamp())
@@ -433,7 +487,7 @@ def handoff_text(folder, state):
 
 
 def sync(args):
-    with lock():
+    with task_lock(args.repo, args.issue, slot=False):
         folder, state = read_state(args)
         workspace = Path(state['workspace'])
         checkpoint = workspace / '.agent-work/checkpoint.md'

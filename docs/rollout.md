@@ -34,3 +34,10 @@ The user approved the smaller single-Mac scheduler on 2026-09-07 after compariso
 This rollout replaces cross-host leases with one fixed local lock domain, including a worker-inherited lock. Cross-host operation is unsupported. It provides checkpoint stop requests and periodic quota reads, not guaranteed graceful completion or a hard token cap. Missing interrupted-attempt usage is explicitly unknown. Automatic code/PR publication is deferred; therefore exact-commit validation remains a human publication gate. A second worker and Vocabularium remain excluded.
 
 Source comparison: [official release README](https://github.com/openai/symphony/blob/v0.0.2/elixir/README.md), [orchestrator](https://github.com/openai/symphony/blob/v0.0.2/elixir/lib/symphony_elixir/orchestrator.ex), [Codex session creation](https://github.com/openai/symphony/blob/v0.0.2/elixir/lib/symphony_elixir/codex/app_server.ex). GitHub-native alternatives reviewed included symphony-ts and agent-orchestrator; they add a separate runtime/framework, while extending the already-tested launcher preserves our saved-session behavior with no new dependencies.
+
+## Four-worker update (2026-09-08)
+
+The user explicitly replaced the original single-worker limit with four simultaneous
+workers. See [the concurrency contract](concurrency.md) for shared capacity, per-issue
+isolation and remaining single-Mac limitations. Earlier phase acceptance and pilot
+records describe their historical one-worker setup and are not current capacity policy.

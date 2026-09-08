@@ -10,7 +10,7 @@
     {"name": "Patch whitespace", "command": ["git", "diff", "--check"]}
   ],
   "policy": {
-    "workers": 1,
+    "workers": 4,
     "attempt_minutes": 20,
     "weekly_reserve": 3,
     "short_reserve": 25,

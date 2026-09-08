@@ -34,7 +34,7 @@ def execute(command, cwd, output, seconds, lock_fd=None, limit=1024*1024, monito
         try:
             process = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
                                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                       start_new_session=True, pass_fds=() if lock_fd is None else (lock_fd,))
+                                       start_new_session=True, pass_fds=() if lock_fd is None else lock_fd if isinstance(lock_fd, tuple) else (lock_fd,))
         except OSError as error:
             log.write(str(error).encode())
         else:
@@ -80,7 +80,7 @@ def verify(issue, file, seconds):
     errors = contract.validate(data)
     if errors: raise RuntimeError('; '.join(errors))
     if data['repository'] != s.REPO: raise RuntimeError('Only the dotfiles repository is authorized')
-    with s.scheduler_lock(), a.lock() as lock_fd:
+    with s.scheduler_lock(), a.task_lock(s.REPO, issue) as lock_fd:
         job = s.load()['jobs'].get(str(issue), {})
         if job.get('status') not in ('needs-review', 'needs-approval'):
             raise RuntimeError('Only stopped task work can be verified')

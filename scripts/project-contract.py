@@ -29,7 +29,7 @@ def validate(data):
                 errors.append('Each check requires a name and command argument list')
     policy = data.get('policy', {})
     if not isinstance(policy, dict): return errors + ['policy must be an object']
-    for key, value in {'workers':1, 'attempt_minutes':20, 'weekly_reserve':3, 'short_reserve':25,
+    for key, value in {'workers':4, 'attempt_minutes':20, 'weekly_reserve':3, 'short_reserve':25,
                        'retry_authority':'supervising-agent', 'automatic_publication':False, 'dispatch_enabled':False}.items():
         if type(policy.get(key)) != type(value) or policy.get(key) != value:
             errors.append(f'Initial policy requires {key}={value}')

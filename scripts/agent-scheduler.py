@@ -2,6 +2,7 @@
 """Single-Mac, opt-in issue dispatch. No automatic retries of started attempts."""
 import argparse
 import contextlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import fcntl
 import importlib.util
 import hashlib
@@ -13,6 +14,7 @@ import signal
 import subprocess
 import sys
 import time
+import threading
 
 spec = importlib.util.spec_from_file_location('agent_work', Path(__file__).with_name('agent-work.py'))
 a = importlib.util.module_from_spec(spec)
@@ -127,7 +129,7 @@ def publish(issue, status, note):
         head = a.git(workspace, 'rev-parse', 'HEAD')
         body += f'Base/current HEAD: `{head}`. Changes may be uncommitted.\n'
         body += 'Local edits require review; a completed turn is not verification. No code was published.\n'
-    payload = paths()[0] / 'publication.json'
+    payload = a.location(REPO, issue) / 'publication.json'
     a.save(payload, {'body': body})
     endpoint = f'repos/{REPO}/issues/comments/{own[0]["id"]}' if own else f'repos/{REPO}/issues/{issue}/comments'
     a.gh('api', '--method', 'PATCH' if own else 'POST', endpoint, '--input', str(payload))
@@ -169,94 +171,146 @@ def monitor(issue, baseline):
     return check
 
 
+def attempt(args, saved, previous):
+    try:
+        a.run(args)
+        status = json.loads(saved.read_text())['status']
+        final = 'needs-review' if status == 'needs-review' else 'needs-approval'
+        note = ('Attempt finished. Review local changes and verification before publishing code.' if final == 'needs-review'
+                else f'Attempt stopped ({status}). Inspect saved work before authorizing another attempt.')
+        return {'status': final, 'worker_status': status, 'publication': [final, note]}
+    except a.WorkerBusy:
+        # No attempt started; preserve authorization instead of consuming a retry.
+        return {'status': previous, 'publication': ['waiting-capacity', 'Issue or worker capacity is busy. No attempt started.']}
+    except BaseException as error:
+        return {'status': 'needs-approval', 'error': str(error),
+                'publication': ['needs-approval', 'Dispatch stopped. Inspect saved work before authorizing another attempt.']}
+
+
 def tick():
     with scheduler_lock():
-        if not paths()[2].exists():
-            return
-        state = load()
-        if state.get('quota_policy') != QUOTA_POLICY:
-            state['quota_policy'] = dict(QUOTA_POLICY)
-            state.pop('next_check', None)
-            state.pop('last_error', None)
-            persist(state)
-        # The child inherits the worker lock: a scheduler crash cannot free a live worker's lock.
-        with a.lock():
-            for job in state['jobs'].values():
-                if job['status'] == 'dispatching':
-                    job.update(status='needs-approval', publication=['needs-approval', 'Scheduler restart detected. Inspect saved work/session before explicitly authorizing another attempt.'])
-            persist(state)
-        flush(state)
-        if time.time() < state.get('next_check', 0):
-            return
-        pages = json.loads(a.gh('api', '--paginate', '--slurp', f'repos/{REPO}/issues?state=open&labels=agent%3Aready&per_page=100'))
-        candidates = sorted((i for page in pages for i in page if 'pull_request' not in i), key=lambda i: i['number'])
-        for item in candidates:
-            issue = item['number']
-            key = str(issue)
-            job = state['jobs'].get(key, {'status': 'new'})
-            if job['status'] not in ('new', 'approved', 'waiting-quota'):
-                continue
-            snap, _ = a.snapshot(REPO, issue)
+        futures = {}
+        cancel = threading.Event()
+        with ThreadPoolExecutor(max_workers=a.WORKER_LIMIT) as pool:
             try:
-                allowed(snap)
-            except RuntimeError:
-                continue
-            # An existing manually-run task needs explicit retry authorization too.
-            saved = a.location(REPO, issue) / 'state.json'
-            if saved.exists() and json.loads(saved.read_text()).get('attempts', 0) and job['status'] != 'approved':
-                job.update(status='needs-approval', publication=['needs-approval', 'Existing task has previous attempts. Inspect its checkpoint and authorize a retry explicitly.'])
-                state['jobs'][key] = job
-                persist(state)
-                flush(state)
-                continue
-            if job['status'] == 'approved':
+                dispatch(pool, futures, cancel)
+            except BaseException:
+                cancel.set()
+                raise
+            finally:
+                # Only this controller thread writes scheduler state; workers write their own task state.
+                errors = []
                 try:
-                    revision, _ = review_snapshot(issue)
-                    if job.get('review', {}).get('revision') != revision:
-                        raise RuntimeError('Workspace or feedback changed after retry review')
-                except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
-                    job.update(status='needs-approval', publication=['needs-approval', str(error) + '. Review again before retrying.'])
-                    state['jobs'][key] = job
-                    persist(state); flush(state)
-                    continue
+                    for future in as_completed(futures):
+                        state = load()
+                        state['jobs'][str(futures[future])].update(future.result())
+                        persist(state)
+                        try: flush(state)
+                        except Exception as error: errors.append(error)
+                except BaseException:
+                    cancel.set()
+                    raise
+                if errors: raise errors[0]
+
+
+def dispatch(pool, futures, cancel):
+    if not paths()[2].exists():
+        return
+    with (a.ROOT/'worker.lock').open('a') as lease:
+        try: fcntl.flock(lease, fcntl.LOCK_SH | fcntl.LOCK_NB)
+        except BlockingIOError: raise a.WorkerBusy('Runtime maintenance is in progress')
+    state = load()
+    if state.get('quota_policy') != QUOTA_POLICY:
+        state['quota_policy'] = dict(QUOTA_POLICY)
+        state.pop('next_check', None)
+        state.pop('last_error', None)
+        persist(state)
+    # Maintenance exclusion is checked before scheduling, without excluding other workers.
+    for number, job in state['jobs'].items():
+        if job['status'] == 'dispatching':
             try:
-                data = a.quota()
-                a.quota_guard(data, QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])
-            except Exception as error:
-                state['next_check'] = wait_until(data) if 'data' in locals() else time.time() + 300
-                # Preserve approved retry permission; no attempt was started.
-                state['last_error'] = str(error)
-                job['publication'] = ['waiting-quota', 'Quota is unavailable or the 25% short-window or 3% weekly reserve is reached. No model turn started; the controller will recheck after its saved waiting period.']
-                state['jobs'][key] = job
-                persist(state)
-                flush(state)
-                return
-            state.pop('next_check', None)
-            # Durable reservation BEFORE preparation or launching. Failures consume this authorization.
-            job.update(status='dispatching', started_at=a.stamp())
+                with a.task_lock(REPO, int(number), slot=False):
+                    job.update(status='needs-approval', publication=['needs-approval', 'Scheduler restart detected. Inspect saved work/session before explicitly authorizing another attempt.'])
+            except a.WorkerBusy:
+                continue  # A live/orphaned worker still owns this issue.
+    persist(state)
+    flush(state)
+    if time.time() < state.get('next_check', 0):
+        return
+    pages = json.loads(a.gh('api', '--paginate', '--slurp', f'repos/{REPO}/issues?state=open&labels=agent%3Aready&per_page=100'))
+    candidates = sorted((i for page in pages for i in page if 'pull_request' not in i), key=lambda i: i['number'])
+    for item in candidates:
+        issue = item['number']
+        key = str(issue)
+        job = state['jobs'].get(key, {'status': 'new'})
+        if job['status'] not in ('new', 'approved', 'waiting-quota'):
+            continue
+        snap, _ = a.snapshot(REPO, issue)
+        try:
+            allowed(snap)
+        except RuntimeError:
+            continue
+        # An existing manually-run task needs explicit retry authorization too.
+        saved = a.location(REPO, issue) / 'state.json'
+        if saved.exists() and json.loads(saved.read_text()).get('attempts', 0) and job['status'] != 'approved':
+            job.update(status='needs-approval', publication=['needs-approval', 'Existing task has previous attempts. Inspect its checkpoint and authorize a retry explicitly.'])
             state['jobs'][key] = job
             persist(state)
-            args = argparse.Namespace(repo=REPO, issue=issue, checkout=str(SOURCE), minutes=20, reserve=QUOTA_POLICY['short_reserve'], weekly_reserve=QUOTA_POLICY['weekly_reserve'])
+            flush(state)
+            continue
+        if job['status'] == 'approved':
             try:
-                if not saved.exists():
-                    args.checkout = str(ensure_source())
-                    a.prepare(args)
-                # Publish before starting so lack of tracker write access prevents invisible work.
-                publish(issue, 'starting', 'Starting one GPT-6 Astra attempt with a 20-minute limit and quota monitoring. Routine review belongs to the supervising agent; high-level architectural choices go to the user. Publication remains within the task authorization.')
-                args.monitor = monitor(issue, fingerprint(snap))
-                a.run(args)
-                worker = json.loads(saved.read_text())
-                status = worker['status']
-                job.update(status='needs-review' if status == 'needs-review' else 'needs-approval', worker_status=status)
-                note = ('Attempt finished. Review local changes and verification before publishing code.' if status == 'needs-review'
-                        else f'Attempt stopped ({status}). New feedback, if any, was detected; it has not been implemented. Inspect saved work before authorizing another attempt.')
-            except Exception as error:
-                job.update(status='needs-approval', error=str(error))
-                note = 'Dispatch stopped. Inspect local scheduler status and saved work before authorizing another attempt.'
-            job['publication'] = [job['status'], note]
+                revision, _ = review_snapshot(issue)
+                if job.get('review', {}).get('revision') != revision:
+                    raise RuntimeError('Workspace or feedback changed after retry review')
+            except (RuntimeError, OSError, ValueError, subprocess.SubprocessError) as error:
+                job.update(status='needs-approval', publication=['needs-approval', str(error) + '. Review again before retrying.'])
+                state['jobs'][key] = job
+                persist(state); flush(state)
+                continue
+        try:
+            data = a.quota()
+            a.quota_guard(data, QUOTA_POLICY['short_reserve'], QUOTA_POLICY['weekly_reserve'])
+        except Exception as error:
+            state['next_check'] = wait_until(data) if 'data' in locals() else time.time() + 300
+            # Preserve approved retry permission; no attempt was started.
+            state['last_error'] = str(error)
+            job['publication'] = ['waiting-quota', 'Quota is unavailable or the 25% short-window or 3% weekly reserve is reached. No model turn started; the controller will recheck after its saved waiting period.']
+            state['jobs'][key] = job
             persist(state)
             flush(state)
-            return  # At most one attempt per invocation.
+            return
+        state.pop('next_check', None)
+        # Durable reservation BEFORE preparation or launching. Failures consume this authorization.
+        previous = job['status']
+        job.update(status='dispatching', started_at=a.stamp())
+        state['jobs'][key] = job
+        persist(state)
+        args = argparse.Namespace(repo=REPO, issue=issue, checkout=str(SOURCE), minutes=20, reserve=QUOTA_POLICY['short_reserve'], weekly_reserve=QUOTA_POLICY['weekly_reserve'])
+        try:
+            if not saved.exists():
+                args.checkout = str(ensure_source())
+                a.prepare(args)
+            # Publish before starting so lack of tracker write access prevents invisible work.
+            publish(issue, 'starting', 'Starting one GPT-6 Astra attempt with a 20-minute limit and quota monitoring. Routine review belongs to the supervising agent; high-level architectural choices go to the user. Publication remains within the task authorization.')
+            check = monitor(issue, fingerprint(snap))
+            args.monitor = lambda worker, initial, check=check: 'paused' if cancel.is_set() else check(worker, initial)
+            future = pool.submit(attempt, args, saved, previous)
+            futures[future] = issue
+            if len(futures) >= a.WORKER_LIMIT:
+                return
+            continue
+        except a.WorkerBusy:
+            job['status'] = previous
+            persist(state)
+            continue
+        except Exception as error:
+            job.update(status='needs-approval', error=str(error))
+            note = 'Dispatch stopped. Inspect local scheduler status and saved work before authorizing another attempt.'
+        job['publication'] = [job['status'], note]
+        persist(state)
+        flush(state)
+        # Continue admitting distinct issues up to the shared worker capacity.
 
 
 def review_snapshot(issue):
@@ -311,7 +365,7 @@ def require_verification(issue, identifier, revision):
 
 
 def record_review(issue, evidence_path, decision):
-    with scheduler_lock(), a.lock():
+    with scheduler_lock(), a.task_lock(REPO, issue, slot=False):
         state = load()
         job = state['jobs'].get(str(issue), {})
         if job.get('status') not in ('needs-review', 'needs-approval'):
@@ -345,7 +399,7 @@ def record_review(issue, evidence_path, decision):
 
 
 def approve(issue):
-    with scheduler_lock(), a.lock():
+    with scheduler_lock(), a.task_lock(REPO, issue, slot=False):
         state = load()
         key = str(issue)
         if key not in state['jobs'] or state['jobs'][key]['status'] not in ('needs-approval', 'needs-review'):
@@ -420,7 +474,7 @@ def main():
             paths()[2].unlink(missing_ok=True)
         elif args.command == 'inspect':
             if not args.issue or args.issue < 1: parser.error('inspect requires a positive issue number')
-            with scheduler_lock(), a.lock():
+            with scheduler_lock(), a.task_lock(REPO, args.issue, slot=False):
                 revision, snapshot = review_snapshot(args.issue)
                 print(json.dumps({'revision': revision, 'snapshot': snapshot}, indent=2))
         elif args.command == 'review':

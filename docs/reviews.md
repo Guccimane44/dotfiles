@@ -64,7 +64,7 @@ agent-work project validate /absolute/path/project.json
 The intentionally incomplete template fails until repository, branch, scope, stack,
 setup arguments and verification commands are supplied. Validation never executes
 commands, installs tools, registers repositories or enables dispatch. Initial policy
-is one worker, 20 minutes, 25% short-window reserve, 3% weekly reserve, supervising-agent
+is four workers, 20 minutes, 25% short-window reserve, 3% weekly reserve, supervising-agent
 retry review and no automatic publication. Demonstrate setup, checks and saved-session
 recovery in a disposable task before proposing an allowlist change. Product repositories,
 including Vocabularium, remain excluded from the current scheduler.

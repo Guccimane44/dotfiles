@@ -55,7 +55,7 @@ See [scheduler operations](docs/scheduler.md) for activation, issue controls, ex
 
 ## Cost controls and limits
 
-Default: GPT-6 Astra, medium reasoning, one worker, 20-minute run ceiling, and at least 15% remaining in the short quota window and 3% in the weekly window at launch. Override with `--minutes 5 --reserve 25 --weekly-reserve 3` when needed. The quota check uses Codex App Server account reads and does not start an LLM turn. Missing quota data blocks launch. No quota-reset credits are consumed.
+Default: GPT-6 Astra, medium reasoning, up to four workers, 20-minute run ceiling, and at least 15% remaining in the short quota window and 3% in the weekly window at launch. Override with `--minutes 5 --reserve 25 --weekly-reserve 3` when needed. The quota check uses Codex App Server account reads and does not start an LLM turn. Missing quota data blocks launch. No quota-reset credits are consumed.
 
 The launcher removes an inherited `OPENAI_API_KEY`, requires ChatGPT authentication, and ignores the user's base config for worker invocation so model/effort are explicit. It uses workspace-write sandboxing and refuses requests needing approval in the noninteractive worker. It does not bypass the sandbox, install tools, or change host configuration for workers. Missing tools/permissions should be reported for the supervisor to resolve.
 
@@ -95,3 +95,6 @@ change the separately authorized scheduler's enabled flag.
 
 See [the lean worker workflow](docs/lean-workflow.md) for controller-captured handoffs
 and reduced model-authored administration. Cost savings remain to be measured.
+
+The current shared capacity is [four workers](docs/concurrency.md), with one operation
+per issue/workspace. Runtime maintenance remains exclusive.

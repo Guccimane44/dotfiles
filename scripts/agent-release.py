@@ -144,7 +144,7 @@ def rollback():
 
 
 def health():
-    result={'enabled':s.paths()[2].exists(),'quota_policy':s.QUOTA_POLICY,'problems':[]}
+    result={'worker_limit':a.WORKER_LIMIT,'enabled':s.paths()[2].exists(),'quota_policy':s.QUOTA_POLICY,'problems':[]}
     try:
         release=(HOME/'current').resolve(strict=True)
         result['release']=verify(release)['revision']

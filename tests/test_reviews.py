@@ -85,7 +85,7 @@ class ReviewTests(unittest.TestCase):
         s.a.save(s.a.location(s.REPO, 1)/'feedback.json', {'detected_at':'fixture-time', 'comment_ids':[42]})
         with patch.object(s.a, 'gh', return_value='{"login":"operator"}'):
             s.publish(1, 'needs-approval', 'Stopped')
-        body = json.loads((s.paths()[0]/'publication.json').read_text())['body']
+        body = json.loads((s.a.location(s.REPO,1)/'publication.json').read_text())['body']
         self.assertIn('Feedback acknowledged', body)
         self.assertIn('acknowledgment does not mean implementation', body)
         self.assertIn('42', body)
