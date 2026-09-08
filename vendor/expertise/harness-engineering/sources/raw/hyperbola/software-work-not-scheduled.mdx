@@ -1,0 +1,77 @@
+---
+title: "Software Work Is No Longer Scheduled"
+publishDate: "2026-03-13"
+slug: software-work-not-scheduled
+summary: >-
+  Full Japanese support for an alpha app would lose a roadmap fight. With
+  agents, bounded work with a clear desired state and verifiable result can run
+  as a background task.
+social:
+  card: overlay-card
+  image: planning-breaks-down.png
+---
+
+import { Image } from "astro:assets";
+
+import figure from "./planning-breaks-down.png?url";
+
+I recently added full Japanese support to an alpha app for internal users in our
+Tokyo office. In an engineering organization where every implementation hour is
+human labor, this is a project: it needs roadmap time, staffing, and somebody
+willing to argue that localization is more important than the other work
+available to the team.
+
+In the times before agents where implementation is expensive and human bandwidth
+is the limiting factor, moving the app to GA would dominate the alpha-stage
+concerns of internal users; the Tokyo users would have to wait. Today, in my
+day-to-day work with agents, it was a background task.
+
+<div class="mb-3 rounded-sm">
+  <Image
+    class="mx-auto img-fluid d-block rounded-sm"
+    height="500"
+    width="500"
+    src={figure}
+    alt="A 3D isometric scene showing a desk calendar and to-do clipboard next to a conveyor belt spilling stacks of blue code blocks onto the floor. The calendar and task list suggest scheduled work, while the overflowing code represents continuous, unscheduled software output. Rendered in a clean Airbnb-style miniature aesthetic on a white background."
+  />
+</div>
+
+Nobody needed to be convinced that Japanese support would help our Tokyo users.
+The work would have waited because staffing it meant taking an engineer away
+from something else. Roadmaps, backlogs, and sprint planning are all ways of
+making that trade.
+
+Agents reduce the implementation cost enough that this capital allocation test
+applies to a much smaller class of work. I use _background task_ for work where
+the desired state is already clear, the interfaces are understood, and the
+result can be verified. The localization work fit this category. So does filling
+an instrumentation gap before the pager finds it, routine performance and
+security hardening, or giving users a dashboard for data they would otherwise
+need a support ticket to retrieve. A text box that should regain focus after
+paste does not need product strategy; it needs a change, a browser test, and a
+screenshot showing that the change worked.
+
+These improvements fall below the line for perfectly rational reasons. Staffing
+one displaces work already committed to users, while its value can be hard to
+measure before something breaks. The implementation and coordination cost can
+exceed the benefit of fixing the problem. This is how codebases accumulate known
+blind spots, brittle interfaces, security hardening work, and UX paper cuts even
+when everyone agrees on what better looks like.
+
+Agents change that calculation, but only when the work can be made legible to
+them. A background task needs enough context to identify the correct change,
+static guardrails to prevent obvious regressions, and an acceptance procedure
+that produces evidence for review. If those pieces exist, the work does not need
+to wait for a sprint slot. The agent can execute asynchronously, attach tests,
+logs, or screenshots to the PR, and ask a human for a merge decision rather than
+implementation time.
+
+There is still software work that belongs on a roadmap. Building a product from
+zero, carrying a difficult interface refactor, or working in a part of the
+system where the interfaces themselves are unknown all require sustained human
+judgment. In these cases, producing code is incidental to deciding what should
+exist. Adding them to a background queue does not remove the ambiguity.
+
+Roadmaps are still useful where the decision itself is expensive. Once the
+decision has been made and success can be specified, I would rather hand
+execution to agents than make the change compete for a place on the roadmap.

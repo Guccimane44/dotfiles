@@ -577,7 +577,7 @@ def main():
             p.add_argument('--weekly-reserve', type=int, default=3)
         if name == 'sync':
             p.add_argument('--publish', action='store_true')
-    for extra in ('scheduler', 'console', 'skills', 'release', 'project', 'verify'):
+    for extra in ('scheduler', 'console', 'skills', 'release', 'project', 'verify', 'expertise'):
         sp = subs.add_parser(extra)
         sp.add_argument('scheduler_args', nargs=argparse.REMAINDER)
     subs.add_parser('quota')
@@ -586,8 +586,8 @@ def main():
         parser.error('minutes must be 1–120; short-window reserve 5–95; weekly reserve 1–95 percent')
     os.umask(0o077)
     try:
-        if args.command in ('scheduler', 'console', 'skills', 'release', 'project', 'verify'):
-            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py','release':'agent-release.py','project':'project-contract.py','verify':'agent-verify.py'}[args.command]
+        if args.command in ('scheduler', 'console', 'skills', 'release', 'project', 'verify', 'expertise'):
+            module = {'scheduler':'agent-scheduler.py','console':'agent-console.py','skills':'skills-profile.py','release':'agent-release.py','project':'project-contract.py','verify':'agent-verify.py','expertise':'agent-expertise.py'}[args.command]
             os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name(module)), *args.scheduler_args])
         elif args.command == 'quota':
             print(json.dumps(quota(), indent=2))

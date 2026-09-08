@@ -1,0 +1,81 @@
+---
+title: "Stop Treating Code as the Artifact"
+publishDate: "2026-03-13"
+slug: code-is-not-the-artifact
+summary: >-
+  Symphony is distributed spec-first: a coding agent can rebuild it in another
+  language from `SPEC.md`. The durable artifact is the set of decisions required
+  to reproduce the system.
+social:
+  card: overlay-card
+  image: constraints-over-code-hive.png
+---
+
+import { Image } from "astro:assets";
+
+import figure from "./constraints-over-code-hive.png?url";
+
+[Symphony][symphony] is an issue-tracker-based agent orchestration system. It
+polls for work, creates an isolated workspace, runs a coding agent, and exposes
+enough status to operate many concurrent runs. The system is distributed first
+as a spec. There is an Elixir reference implementation, but the implementation
+is explicitly derivative: the invitation in the [README][symphony-readme] is to
+hand `SPEC.md` to your coding agent and have it build Symphony in the
+environment and language of your choice. Symphony is a **ghost library**: the
+spec is the distribution, and the source tree is one generated artifact.
+
+<div class="mb-3 rounded-sm">
+  <Image
+    class="mx-auto img-fluid d-block rounded-sm"
+    height="500"
+    width="500"
+    src={figure}
+    alt="A 3D isometric scene of bees collaboratively maintaining a honeycomb structure. Each bee works on individual cells while checkmarks and warning markers indicate enforced rules. The honeycomb represents a codebase shaped by constraints, with quality emerging from distributed enforcement rather than centralized review, rendered in a clean Airbnb-style miniature aesthetic on a white background."
+  />
+</div>
+
+Before coding agents, we would still have needed to ship and maintain a
+canonical implementation beside the spec.
+
+We did not produce the Symphony spec by starting with a blank Markdown file and
+attempting to imagine every requirement. We gave the working system to Codex and
+asked it to write the spec. A disconnected agent was then given only that spec
+and asked to reimplement Symphony. Another agent compared the new implementation
+with the original and amended the spec where they diverged. We repeated that
+loop until the spec could reproduce the system with high
+fidelity.[^ghost-library]
+
+This is spec-driven development in reverse. Code is an extremely
+information-dense straw man for what the system could be. It is easier to build
+the concrete thing, engage with it as a team, and distill the accepted decisions
+into a spec than it is to anticipate every consequential decision up front. The
+implementation does the exploration; the spec records enough of the result for
+an agent to assemble it again.
+
+A spec is not sufficient on its own inside a working repository. An
+agent-authored PR should carry the prompt that produced it because the diff only
+shows what was implemented. The prompt records the work that was intended. The
+repo-owned spec defines what the system does; typed boundaries and executable
+guardrails constrain the implementations the agent is allowed to produce; the
+operator surface emits the logs, state, and status that prove whether a run
+behaved correctly.
+
+These constraints are also code, and all code in the repository is itself a
+prompt. A codebase with six competing patterns requires the model to spend
+attention rediscovering which one is canonical. Unifying the repository on one
+pattern makes the intended choice legible without loading another page of rules
+into the context window.
+
+For review, I want the prompt beside the diff so I can compare intent with
+implementation. I want the invariant encoded in a boundary or verifier, and the
+proof emitted through the operator surface. Those are the parts that survive a
+replacement implementation. The source tree still matters because future agents
+use it as a prompt, but it is one replaceable realization of the system.
+
+[symphony]: https://github.com/openai/symphony/blob/main/SPEC.md
+[symphony-readme]: https://github.com/openai/symphony/blob/main/README.md
+[latent-space-interview]: https://www.latent.space/p/harness-eng
+
+[^ghost-library]:
+    I described the spec-distillation loop and the “ghost library” name in the
+    [Latent Space interview on harness engineering][latent-space-interview].

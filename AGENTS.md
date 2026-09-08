@@ -26,6 +26,11 @@ Astra for complex implementation, debugging, architecture, and analytical docume
 Set the issue's Work class or model label before dispatch; see docs/model-routing.md.
 Do not spend a separate model turn classifying a task or silently retry on Astra.
 
+## Optional expertise
+
+For an unresolved harness-design decision, consult docs/optional-expertise.md;
+retrieve one relevant pinned reference only when local evidence is insufficient.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.

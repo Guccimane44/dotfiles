@@ -1,0 +1,2564 @@
+{
+  "schema_version": 2,
+  "as_of": "2026-07-18",
+  "maintainer": "Ryan Lopopolo",
+  "repository_purpose": "Agent-shareable context bundle for Ryan Lopopolo's harness-engineering work, with explicit authorship and visibility boundaries.",
+  "license": {
+    "id": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "scope": "Original repository material, Ryan Lopopolo social-post text, and Ryan-authored hyperbo.la article text, subject to the exclusions and other rights recorded in COPYING.md."
+  },
+  "sources": [
+    {
+      "id": "matklad-architecture-md",
+      "title": "ARCHITECTURE.md",
+      "date": "2021-02-06",
+      "reviewed_at": "2026-07-17",
+      "authors": ["matklad"],
+      "kind": "article",
+      "classification": "intellectual_lineage",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Introduces the short, stable repository codemap, architectural invariants, boundaries, and cross-cutting concerns.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html",
+            "archived_url": "https://web.archive.org/web/20260707103645id_/https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-architecture",
+      "title": "Artichoke Ruby Architecture",
+      "date": "2021-02-07",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "repository_architecture",
+      "classification": "first_party_historical_antecedent",
+      "authorship_scope": "ryan_and_first_party_project_contributors",
+      "canonical": true,
+      "review_basis": "current_document_and_commit_history",
+      "duplicate_of": null,
+      "notes": "Living architecture document descended from Ryan's 2021 codemap, with capability-shaped interpreter boundaries and an incremental backend migration.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/blob/trunk/ARCHITECTURE.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-architecture-fbb43b6",
+      "title": "Document Artichoke architecture in ARCHITECTURE.md",
+      "date": "2021-02-07",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "commit",
+      "classification": "first_party_historical_antecedent",
+      "canonical": true,
+      "review_basis": "full_patch_and_commit_message",
+      "duplicate_of": null,
+      "notes": "First Artichoke architecture document. The commit message explicitly cites matklad's ARCHITECTURE.md essay; the document maps layers and core interpreter capabilities.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/commit/fbb43b6ce18556412a489a88e5cc24dea9b587a8"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-architecture-1dd8978",
+      "title": "Improve ARCHITECTURE.md",
+      "date": "2021-02-08",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "commit",
+      "classification": "first_party_historical_antecedent",
+      "canonical": true,
+      "review_basis": "full_patch_and_commit_message",
+      "duplicate_of": null,
+      "notes": "Makes Artichoke's incremental replacement of mruby functions through the Strangler Fig pattern explicit.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/commit/1dd8978fe4edf1971928fd00e30edbd124fd0aaa"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-architecture-fa5b2eb",
+      "title": "Remove specific mruby version from ARCHITECTURE.md",
+      "date": "2022-08-24",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "commit",
+      "classification": "first_party_historical_antecedent",
+      "canonical": true,
+      "review_basis": "full_patch_and_commit_message",
+      "duplicate_of": null,
+      "notes": "Removes a literal mruby version to make the architecture document resilient to dependency changes.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/commit/fa5b2eb907d8746efd7cf51f07cd84e7e1f9b49f"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-origin-c39cc77",
+      "title": "Store Mrb in mrb_state userdata",
+      "date": "2019-04-22",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "commit",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_patch_and_commit_message",
+      "duplicate_of": null,
+      "notes": "Early state-ownership decision later identified by PR #670 as the origin of the Rc<RefCell<State>> model.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/commit/c39cc778900ff26d1ce8109f7235554e9e6c525a"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-pr442",
+      "title": "Destructure State",
+      "date": "2020-01-24",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "pull_request",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_description_patch_commits_comments_and_timeline",
+      "duplicate_of": null,
+      "notes": "Non-compiling 114-file experiment that identified state ownership, FFI movement, API mutability, and extension rewrites as entangled work.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/442"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/artichoke/commit/4424ed934b403293124a6a3cb690b2191d039f5d",
+          "https://github.com/artichoke/artichoke/issues/116",
+          "https://github.com/artichoke/artichoke/issues/468"
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-preparation-stream",
+      "title": "Preparatory pull requests linked to Artichoke PR #442",
+      "date": "2020-05-03",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "pull_request_set",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "descriptions_comments_cross_reference_timeline_and_representative_patches",
+      "duplicate_of": null,
+      "notes": "Exactly 50 merged PRs with explicit causal links to #442, covering extracted changes, state components, capability APIs, mutability propagation, defect repair, and removal of direct VM access.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/442"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/artichoke/pull/444",
+          "https://github.com/artichoke/artichoke/pull/447",
+          "https://github.com/artichoke/artichoke/pull/448",
+          "https://github.com/artichoke/artichoke/pull/449",
+          "https://github.com/artichoke/artichoke/pull/450",
+          "https://github.com/artichoke/artichoke/pull/451",
+          "https://github.com/artichoke/artichoke/pull/453",
+          "https://github.com/artichoke/artichoke/pull/455",
+          "https://github.com/artichoke/artichoke/pull/456",
+          "https://github.com/artichoke/artichoke/pull/457",
+          "https://github.com/artichoke/artichoke/pull/458",
+          "https://github.com/artichoke/artichoke/pull/460",
+          "https://github.com/artichoke/artichoke/pull/461",
+          "https://github.com/artichoke/artichoke/pull/462",
+          "https://github.com/artichoke/artichoke/pull/463",
+          "https://github.com/artichoke/artichoke/pull/464",
+          "https://github.com/artichoke/artichoke/pull/465",
+          "https://github.com/artichoke/artichoke/pull/466",
+          "https://github.com/artichoke/artichoke/pull/467",
+          "https://github.com/artichoke/artichoke/pull/469",
+          "https://github.com/artichoke/artichoke/pull/470",
+          "https://github.com/artichoke/artichoke/pull/471",
+          "https://github.com/artichoke/artichoke/pull/472",
+          "https://github.com/artichoke/artichoke/pull/480",
+          "https://github.com/artichoke/artichoke/pull/481",
+          "https://github.com/artichoke/artichoke/pull/487",
+          "https://github.com/artichoke/artichoke/pull/488",
+          "https://github.com/artichoke/artichoke/pull/491",
+          "https://github.com/artichoke/artichoke/pull/497",
+          "https://github.com/artichoke/artichoke/pull/526",
+          "https://github.com/artichoke/artichoke/pull/539",
+          "https://github.com/artichoke/artichoke/pull/557",
+          "https://github.com/artichoke/artichoke/pull/562",
+          "https://github.com/artichoke/artichoke/pull/566",
+          "https://github.com/artichoke/artichoke/pull/571",
+          "https://github.com/artichoke/artichoke/pull/613",
+          "https://github.com/artichoke/artichoke/pull/618",
+          "https://github.com/artichoke/artichoke/pull/621",
+          "https://github.com/artichoke/artichoke/pull/622",
+          "https://github.com/artichoke/artichoke/pull/623",
+          "https://github.com/artichoke/artichoke/pull/630",
+          "https://github.com/artichoke/artichoke/pull/631",
+          "https://github.com/artichoke/artichoke/pull/635",
+          "https://github.com/artichoke/artichoke/pull/643",
+          "https://github.com/artichoke/artichoke/pull/644",
+          "https://github.com/artichoke/artichoke/pull/652",
+          "https://github.com/artichoke/artichoke/pull/655",
+          "https://github.com/artichoke/artichoke/pull/657",
+          "https://github.com/artichoke/artichoke/pull/658",
+          "https://github.com/artichoke/artichoke/pull/659"
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-pr661",
+      "title": "Remove Rc wrapper around Artichoke State",
+      "date": "2020-05-04",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "pull_request",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_description_patch_commits_comments_reviews_and_timeline",
+      "duplicate_of": null,
+      "notes": "Second 111-file integration attempt after 50 preparatory PRs; its timeline preserves a Windows access violation and the architectural debts discovered before the cleaned PR.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/661"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/artichoke/issues/666",
+          "https://github.com/artichoke/artichoke/issues/667",
+          "https://github.com/artichoke/artichoke/issues/668",
+          "https://github.com/artichoke/artichoke/issues/669"
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-use-after-free-f1dcf8b",
+      "title": "Fix a use-after-free caused by GC cycles with the State moved out",
+      "date": "2020-05-04",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "commit",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_patch_and_commit_message",
+      "duplicate_of": null,
+      "notes": "Explains the GC-triggered use-after-free discovered during integration and introduces an explicit FFI-boundary primitive.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/commit/f1dcf8b1f4181eab7504c5fcd25785a7ec9ffc98"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-pr670",
+      "title": "Remove Rc wrapper from the State struct in Artichoke interpreter",
+      "date": "2020-05-09",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "pull_request",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_description_patch_commits_comments_reviews_and_timeline",
+      "duplicate_of": null,
+      "notes": "Merged 110-file ownership refactor with a detailed account of the original decision, preparation stream, remaining cross-cutting work, and new FFI invariants.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/670"
+          }
+        ],
+        "related_urls": ["https://github.com/artichoke/artichoke/issues/127"]
+      }
+    },
+    {
+      "id": "artichoke-state-pr674",
+      "title": "Fix segfault in Artichoke::close",
+      "date": "2020-05-12",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "pull_request",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_description_patch_commits_comments_reviews_and_timeline",
+      "duplicate_of": null,
+      "notes": "Fixes an intermittent Windows shutdown segfault introduced by #670 and identifies destructor ordering as the cause.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/674"
+          }
+        ]
+      }
+    },
+    {
+      "id": "artichoke-state-followthrough",
+      "title": "Follow-through after the Artichoke state refactor",
+      "date": "2021-09-13",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Maurizio Del Corno", "Stuart Hinson"],
+      "kind": "pull_request_set",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_descriptions_patches_commits_comments_reviews_and_timelines",
+      "duplicate_of": null,
+      "notes": "Repairs heap-value boxing, FFI coverage, fallibility, and package ownership that remained after #670.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/707"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/artichoke/pull/723",
+          "https://github.com/artichoke/artichoke/pull/734",
+          "https://github.com/artichoke/artichoke/pull/1355"
+        ]
+      }
+    },
+    {
+      "id": "artichoke-symbol-pr730",
+      "title": "Implement symbol table and Symbol core class in Rust",
+      "date": "2020-07-03",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "pull_request",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "full_description_patch_commits_comments_reviews_and_timeline",
+      "duplicate_of": null,
+      "notes": "Lands the Rust symbol table whose borrowing requirements exposed the state-modeling limitation behind #442.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pull/730"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/artichoke/issues/71",
+          "https://github.com/artichoke/artichoke/issues/219",
+          "https://github.com/artichoke/artichoke/issues/232"
+        ]
+      }
+    },
+    {
+      "id": "artichoke-pr-traffic-2020-state-window",
+      "title": "Artichoke pull requests merged during the state-refactor window",
+      "date": "2020-05-09",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Artichoke contributors"],
+      "kind": "repository_query",
+      "classification": "evaluation_case_primary",
+      "canonical": true,
+      "review_basis": "complete_date_filtered_github_pull_request_index",
+      "duplicate_of": null,
+      "notes": "GitHub records 200 merged pull requests in the repository between the opening of #442 and the merge of #670.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/artichoke/pulls?q=is%3Apr+is%3Amerged+merged%3A2020-01-24..2020-05-09"
+          }
+        ]
+      }
+    },
+    {
+      "id": "alexis-king-parse-dont-validate",
+      "title": "Parse, don't validate",
+      "date": "2019-11-05",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Alexis King"],
+      "kind": "article",
+      "classification": "intellectual_lineage",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Typed boundary discipline: convert less-structured input into precise values that preserve knowledge and make invalid states difficult to represent.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/",
+            "archived_url": "https://web.archive.org/web/20260710134427id_/https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "boeckeler-harness-engineering-memo",
+      "title": "Harness Engineering - first thoughts",
+      "date": "2026-02-17",
+      "reviewed_at": "2026-07-18",
+      "publisher": "MartinFowler.com",
+      "authors": ["Birgitta Böckeler"],
+      "kind": "article",
+      "classification": "subsequent_alternate_framing",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "An initial response to Ryan Lopopolo's harness-engineering essay through context, deterministic constraints, LLM review, iterative feedback, and control systems. It precedes George Zhang's cybernetic reading and Böckeler's full guide-and-sensor treatment.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://martinfowler.com/articles/exploring-gen-ai/harness-engineering-memo.html",
+            "archived_url": "https://web.archive.org/web/20260704040445id_/https://martinfowler.com/articles/exploring-gen-ai/harness-engineering-memo.html"
+          }
+        ],
+        "related_urls": [
+          "https://openai.com/index/harness-engineering/",
+          "https://martinfowler.com/articles/harness-engineering.html"
+        ]
+      }
+    },
+    {
+      "id": "george-zhang-harness-engineering-cybernetics",
+      "title": "Harness Engineering Is Cybernetics",
+      "date": "2026-03-07",
+      "reviewed_at": "2026-07-18",
+      "publisher": "X",
+      "authors": ["George Zhang"],
+      "kind": "article",
+      "classification": "subsequent_alternate_framing",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Interprets Ryan Lopopolo's harness-engineering essay through cybernetic feedback, sensor-actuator loops, desired state, and system-specific calibration. It appeared between Birgitta Böckeler's initial memo and full article; the public sources document no direct influence between Zhang and Böckeler.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/i/article/2030414577213820928"
+          },
+          {
+            "role": "sharing_post",
+            "url": "https://x.com/odysseus0z/status/2030416758138634583"
+          }
+        ],
+        "related_urls": [
+          "https://openai.com/index/harness-engineering/",
+          "https://martinfowler.com/articles/exploring-gen-ai/harness-engineering-memo.html",
+          "https://martinfowler.com/articles/harness-engineering.html"
+        ]
+      }
+    },
+    {
+      "id": "boeckeler-harness-engineering",
+      "title": "Harness engineering for coding agent users",
+      "date": "2026-04-02",
+      "reviewed_at": "2026-07-17",
+      "publisher": "MartinFowler.com",
+      "authors": ["Birgitta Böckeler"],
+      "kind": "article",
+      "classification": "subsequent_alternate_framing",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Published after Ryan Lopopolo's 2026-02-11 harness-engineering essay. Offers guides and sensors as a subsequent alternate framing, with computational and inferential controls.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://martinfowler.com/articles/harness-engineering.html",
+            "archived_url": "https://web.archive.org/web/20260714142230id_/https://martinfowler.com/articles/harness-engineering.html"
+          }
+        ]
+      }
+    },
+    {
+      "id": "openai-confessions-publication",
+      "title": "How confessions can keep language models honest",
+      "date": "2025-12-03",
+      "reviewed_at": "2026-07-18",
+      "publisher": "OpenAI",
+      "authors": ["OpenAI"],
+      "kind": "research_article",
+      "classification": "related_research",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Introduces a separately rewarded self-report channel and evaluates it under deliberately induced model failures. It sharpens the evidentiary limits of MLD without making the two mechanisms equivalent.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://openai.com/index/how-confessions-can-keep-language-models-honest/"
+          }
+        ],
+        "related_urls": ["https://arxiv.org/abs/2512.08093"]
+      }
+    },
+    {
+      "id": "openai-confessions-paper",
+      "title": "Training LLMs for Honesty via Confessions",
+      "date": "2025-12-08",
+      "reviewed_at": "2026-07-18",
+      "authors": [
+        "Manas Joglekar",
+        "Jeremy Chen",
+        "Gabriel Wu",
+        "Jason Yosinski",
+        "Jasmine Wang",
+        "Boaz Barak",
+        "Amelia Glaese"
+      ],
+      "kind": "research_paper",
+      "classification": "related_research",
+      "canonical": true,
+      "review_basis": "full_v2_paper",
+      "duplicate_of": null,
+      "notes": "Defines the confession-training and judging method, reports its stress-test results, and documents the limits around confusion, unknown failure dimensions, chain-of-thought visibility, and adversarial robustness.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://arxiv.org/abs/2512.08093"
+          },
+          {
+            "role": "version_reviewed",
+            "url": "https://arxiv.org/html/2512.08093v2"
+          }
+        ],
+        "related_urls": [
+          "https://openai.com/index/how-confessions-can-keep-language-models-honest/",
+          "https://alignment.openai.com/confessions/"
+        ]
+      }
+    },
+    {
+      "id": "fowler-strangler-fig",
+      "title": "Strangler Fig",
+      "date": "2024-08-22",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Martin Fowler"],
+      "kind": "article",
+      "classification": "intellectual_lineage",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Describes gradual legacy modernization by identifying seams and moving behavior into independently deliverable replacement components.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://martinfowler.com/bliki/StranglerFigApplication.html",
+            "archived_url": "https://web.archive.org/web/20260710013621id_/https://martinfowler.com/bliki/StranglerFigApplication.html"
+          }
+        ]
+      }
+    },
+    {
+      "id": "polytoken-introduction",
+      "title": "Polytoken introduction",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Polytoken maintainers"],
+      "kind": "documentation",
+      "classification": "implementation_reference",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Defines Polytoken as a local-first coding-agent daemon that manages providers, tools, and CLI/TUI workflows.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://docs.polytoken.dev/introduction/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "polytoken-tool-reference",
+      "title": "Polytoken tool reference",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Polytoken maintainers"],
+      "kind": "documentation",
+      "classification": "implementation_reference",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Documents model-dependent edit formats, patch_edit, patch-aware filesystem approvals, and the surrounding tool surface.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://docs.polytoken.dev/reference/tools/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ryan-polytoken-apply-patch-observation",
+      "title": "Ryan Lopopolo's Polytoken implementation observation",
+      "date": "2026-07-17",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "author_observation",
+      "classification": "maintainer_provided_context",
+      "canonical": false,
+      "review_basis": "author_provided_statement",
+      "duplicate_of": null,
+      "notes": "Records Ryan's observation that Polytoken directly reuses Codex's open-source apply_patch implementation for OpenAI models. Public Polytoken documentation does not independently verify this implementation detail.",
+      "evidence": {
+        "type": "repository_note",
+        "path": "sources/ryan-notes.md"
+      }
+    },
+    {
+      "id": "openai-codex-apply-patch",
+      "title": "Codex apply_patch grammar and instructions",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["OpenAI Codex contributors"],
+      "kind": "repository_source",
+      "classification": "implementation_reference",
+      "canonical": true,
+      "review_basis": "full_source",
+      "duplicate_of": null,
+      "notes": "Defines the model-visible patch grammar and editing contract implemented by the open-source Codex agent.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/openai/codex/blob/main/codex-rs/core/prompt_with_apply_patch_instructions.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "agent-client-protocol",
+      "title": "Agent Client Protocol introduction and architecture",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Agent Client Protocol contributors"],
+      "kind": "protocol_documentation",
+      "classification": "interoperability_reference",
+      "canonical": true,
+      "review_basis": "full_introduction_and_architecture",
+      "duplicate_of": null,
+      "notes": "Standardizes editor-agent communication across local and remote setups with bidirectional permission requests, streaming session updates, and MCP integration.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://agentclientprotocol.com/get-started/introduction",
+            "archived_url": "https://web.archive.org/web/20260714070034/https://agentclientprotocol.com/get-started/introduction"
+          },
+          {
+            "role": "architecture",
+            "url": "https://agentclientprotocol.com/get-started/architecture",
+            "archived_url": "https://web.archive.org/web/20260616072324/https://agentclientprotocol.com/get-started/architecture"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/agentclientprotocol/agent-client-protocol"
+          }
+        ],
+        "retrieved_at": "2026-07-17",
+        "artifacts": [
+          {
+            "role": "introduction",
+            "path": "sources/raw/acp/introduction.mdx",
+            "sha256": "fa4bc66d1116ece725a099f54073deb735e527c66b10296e3470f53b1997a00a"
+          },
+          {
+            "role": "architecture",
+            "path": "sources/raw/acp/architecture.mdx",
+            "sha256": "1ecc53e3acba67415d5e16fde965b7df4e21dfcb650451bb01e0b10c6f4c36cd"
+          },
+          {
+            "role": "architecture_image",
+            "path": "sources/raw/images/server-client.svg",
+            "sha256": "7058b803978d8bc46929edade589fbebbd847bd0470a91f4c154015dc36a5db3",
+            "upstream_path": "docs/images/server-client.svg"
+          },
+          {
+            "role": "architecture_image",
+            "path": "sources/raw/images/mcp.svg",
+            "sha256": "2b294e9c282b5045f67c517725ff3146eef01859579eb83aa2e4ab1f3648e697",
+            "upstream_path": "docs/images/mcp.svg"
+          },
+          {
+            "role": "architecture_image",
+            "path": "sources/raw/images/mcp-proxy.svg",
+            "sha256": "26322e56dd02a1f6ee5758dd7c23e8ac7dcb5519e4d8557fd69cbac7a3cc8d55",
+            "upstream_path": "docs/images/mcp-proxy.svg"
+          },
+          {
+            "role": "license",
+            "path": "sources/raw/acp/LICENSE",
+            "sha256": "f250d08cee4549b22b3b4aaaf3a743473336fd280316df5d0340717e5127a221",
+            "upstream_path": "LICENSE"
+          }
+        ],
+        "rights": {
+          "license": "Apache-2.0",
+          "scope": "Bundled Agent Client Protocol documentation, diagrams, and license text.",
+          "disposition": "Redistributed under upstream Apache-2.0; excluded from this repository's CC BY 4.0 grant."
+        },
+        "pinned_revision": "dbbb2b2d7e1eb4153f60788c0c1a4aba1e657764"
+      }
+    },
+    {
+      "id": "agent-client-protocol-tool-calls",
+      "title": "Agent Client Protocol tool calls",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Agent Client Protocol contributors"],
+      "kind": "protocol_documentation",
+      "classification": "interoperability_reference",
+      "canonical": true,
+      "review_basis": "full_specification_documentation",
+      "duplicate_of": null,
+      "notes": "Defines model-requested tool-call updates, raw inputs and outputs, progress, diffs, terminals, affected locations, and permission choices.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://agentclientprotocol.com/protocol/v1/tool-calls"
+          }
+        ]
+      }
+    },
+    {
+      "id": "agent-client-protocol-extensibility",
+      "title": "Agent Client Protocol extensibility",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Agent Client Protocol contributors"],
+      "kind": "protocol_documentation",
+      "classification": "interoperability_reference",
+      "canonical": true,
+      "review_basis": "full_specification_documentation",
+      "duplicate_of": null,
+      "notes": "Defines metadata, extension methods, custom notifications, and capability advertisement for interoperable agent and client extensions.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://agentclientprotocol.com/protocol/v1/extensibility"
+          }
+        ]
+      }
+    },
+    {
+      "id": "x-mld-origin",
+      "title": "MISTAKES, DESIRES, and LEARNINGS telemetry prompt",
+      "date": "2026-03-26",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_thread_body_and_archived_quoted_post",
+      "duplicate_of": null,
+      "notes": "Introduces MISTAKES.md, DESIRES.md, and LEARNINGS.md as agent-emitted telemetry collected by a system-prompt instruction.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2037307669464363433"
+          },
+          {
+            "role": "quoted_context",
+            "archived_url": "https://web.archive.org/web/20260326231715id_/https://twitter.com/_lopopolo/status/2037307926902403558"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2037307669464363433"
+        }
+      }
+    },
+    {
+      "id": "x-mld-agent-telemetry",
+      "title": "Agent telemetry? Believe it or not, also prompts",
+      "date": "2026-03-26",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "archived_x_api_json_and_public_thread",
+      "duplicate_of": null,
+      "notes": "Names the prompt-emitted three-file pattern as agent telemetry.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2037307926902403558",
+            "archived_url": "https://web.archive.org/web/20260326231715id_/https://twitter.com/_lopopolo/status/2037307926902403558"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2037307926902403558"
+        }
+      }
+    },
+    {
+      "id": "x-mld-framework",
+      "title": "The MLD framework",
+      "date": "2026-05-06",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_and_quote_thread",
+      "duplicate_of": null,
+      "notes": "Names the MISTAKES, LEARNINGS, and DESIRES telemetry pattern the MLD framework.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2052091245296861574"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2052091245296861574"
+        }
+      }
+    },
+    {
+      "id": "x-mld-agent-builder",
+      "title": "They are not for the agents they are for the agent builder",
+      "date": "2026-05-06",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "archived_x_api_json_and_full_public_thread",
+      "duplicate_of": null,
+      "notes": "Clarifies that raw MLD files are telemetry for the agent builder, not context for agents.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2052095157336703410",
+            "archived_url": "https://web.archive.org/web/20260506183626id_/https://twitter.com/_lopopolo/status/2052095157336703410"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2052095157336703410"
+        }
+      }
+    },
+    {
+      "id": "twitter-public-crawl-2026",
+      "title": "Ryan Lopopolo public X discovery corpus",
+      "date": "2026-07-17",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "machine_readable_social_corpus",
+      "classification": "primary_source_collection",
+      "canonical": false,
+      "review_basis": "public_post_bodies_plus_deleted_post_metadata",
+      "duplicate_of": null,
+      "notes": "Public-post source data with coverage and provenance notes embedded in the artifact.",
+      "evidence": {
+        "type": "snapshot",
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "social_corpus",
+            "path": "sources/twitter/lopopolo-public-x-2026.json",
+            "sha256": "04504997500566875c46a161e9a7cb9f9de1c1c96525504cf59753c092693569"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan Lopopolo's social-post text; see COPYING.md for exclusions and third-party material."
+        }
+      }
+    },
+    {
+      "id": "x-nonfunctional-requirements-into-code",
+      "title": "Harness engineering as getting the universe of nonfunctional requirements into code",
+      "date": "2026-03-03",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Ryan endorses a systems-level framing he heard at the [un]prompted conference: harness engineering gets the full nonfunctional-requirement surface into code.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2028982729145237775"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2028982729145237775"
+        }
+      }
+    },
+    {
+      "id": "x-code-uniformity",
+      "title": "Just make all the code the same",
+      "date": "2026-03-07",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Uniform repository structure, patterns, language, build, documentation, and skills as reusable prompt material.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2030325081868837216"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2030325081868837216"
+        }
+      }
+    },
+    {
+      "id": "x-context-economy",
+      "title": "Context economy has two parts",
+      "date": "2026-03-07",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Pairs retrieval of nonfunctional requirements with reducing the context required for high-quality work.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2030356581792293212"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2030356581792293212"
+        }
+      }
+    },
+    {
+      "id": "x-code-as-prompts",
+      "title": "Code is prompts for future prompts",
+      "date": "2026-03-08",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Names repository code as input that shapes later agent trajectories.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2030460794765451300"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2030460794765451300"
+        }
+      }
+    },
+    {
+      "id": "x-code-action-language",
+      "title": "Code is how an agent uses a computer",
+      "date": "2026-04-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Names code as the agent's internal action language and separates that mechanism from user code literacy.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2043495733375230026"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2043495733375230026"
+        }
+      }
+    },
+    {
+      "id": "x-software-taste",
+      "title": "Taste as coherent principles for tacit requirements",
+      "date": "2026-04-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Defines software taste as coherent principles that address unspoken nonfunctional requirements.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2043798404221022508"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2043798404221022508"
+        }
+      }
+    },
+    {
+      "id": "x-code-hidden-from-users",
+      "title": "Translate user needs into coding problems",
+      "date": "2026-04-22",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Keeps code inside the agent's work while users interact through their own problems and outcomes.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2047037215864418486"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2047037215864418486"
+        }
+      }
+    },
+    {
+      "id": "x-long-term-coherence",
+      "title": "Long-term coherence of agent-produced artifacts",
+      "date": "2026-05-08",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Names long-term coherence of agent-produced artifacts as the maintenance objective.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2052834649152618908"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2052834649152618908"
+        }
+      }
+    },
+    {
+      "id": "x-work-is-iterative",
+      "title": "Work is an iterative game",
+      "date": "2026-05-08",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "States that work is iterative.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2052858891835465813"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2052858891835465813"
+        }
+      }
+    },
+    {
+      "id": "x-brownfield-language-boundary",
+      "title": "Brownfield migration through a language boundary",
+      "date": "2026-05-14",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Exploratory Python-to-Rust decomposition that prevents legacy dependencies and enables stronger static enforcement.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2054955223609680303"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2054955223609680303"
+        }
+      }
+    },
+    {
+      "id": "x-artifact-generalization",
+      "title": "Replace codebase with artifact",
+      "date": "2026-07-14",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_public_post_text",
+      "duplicate_of": null,
+      "notes": "Generalizes codebase-oriented advice to artifacts and effective agent work.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2076878736507736390"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2076878736507736390"
+        }
+      }
+    },
+    {
+      "id": "openai-harness",
+      "title": "Harness engineering: leveraging Codex in an agent-first world",
+      "date": "2026-02-11",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Canonical public statement of the practice.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://openai.com/index/harness-engineering/",
+            "archived_url": "https://web.archive.org/web/20260628021114id_/https://openai.com/index/harness-engineering/"
+          }
+        ],
+        "retrieval_helper": "sources/scripts/fetch_openai.py"
+      }
+    },
+    {
+      "id": "hyperbola-blog-build",
+      "title": "Harness Engineering the Blog Build (Again)",
+      "date": "2026-02-17",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Concrete build-system, policy-lint, coverage, and persona-documentation application.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/harness-engineering-the-blog-build/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/harness-engineering-the-blog-build.mdx",
+            "sha256": "ce2bd72369f9a8edf185c1ca244f4bcd4cfb5e44f96faa0d581da34d93d9a25f",
+            "upstream_path": "packages/blog/content/harness-engineering-the-blog-build/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-production-function",
+      "title": "The Production Function Changed",
+      "date": "2026-03-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Implementation cost, invariant enforcement, and proof.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/production-function-changed/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/production-function-changed.mdx",
+            "sha256": "c23b84bbd216171e4e45ebd6c3874539ab43da573c622615917a5cc46137d82b",
+            "upstream_path": "packages/blog/content/production-function-changed/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-unscheduled-work",
+      "title": "Software Work Is No Longer Scheduled",
+      "date": "2026-03-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Background work, planning, and appropriate use of scarce human attention.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/software-work-not-scheduled/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/software-work-not-scheduled.mdx",
+            "sha256": "b14004c6ac0c8e9d7cec692f94da3e0deaa1cf331175dd602a713ea09af00a8a",
+            "upstream_path": "packages/blog/content/software-work-not-scheduled/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-code-artifact",
+      "title": "Stop Treating Code as the Artifact",
+      "date": "2026-03-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "The repo-owned spec, guardrails, boundaries, and operator surface as durable artifacts.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/code-is-not-the-artifact/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/code-is-not-the-artifact.mdx",
+            "sha256": "d6c797016a782dde884e5ec2155a024f956614d3f18a686d43e51cbb38a4719f",
+            "upstream_path": "packages/blog/content/code-is-not-the-artifact/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-utilization",
+      "title": "Agent Utilization Is the New Performance Ceiling",
+      "date": "2026-03-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Agent access and activity across the full software lifecycle.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/agents-agents-agents/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/agents-agents-agents.mdx",
+            "sha256": "a2b0c2841a43a564f64e4cf207f7c7d6fead47e71b41b7c3f901ea1664a8c944",
+            "upstream_path": "packages/blog/content/agents-agents-agents/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-rustsec",
+      "title": "A Lazy Prompt Turned Into a RustSec Advisory",
+      "date": "2026-03-30",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "The article states that Codex drafted from a repo-local transcript and notes and Ryan rewrote heavily. The linked issue, pull request, release, and advisory record the reproducer, substantive human implementation review, approval, and delegated delivery.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/lazy-prompt-rustsec/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/intaglio/issues/359",
+          "https://github.com/artichoke/intaglio/pull/360",
+          "https://github.com/artichoke/intaglio/releases/tag/v1.13.3",
+          "https://rustsec.org/advisories/RUSTSEC-2026-0078.html"
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/lazy-prompt-rustsec.mdx",
+            "sha256": "29b9206463a2348bc262ca329699f2f095e2d667ac3a7791fa2d7a6a089a6b96",
+            "upstream_path": "packages/blog/content/lazy-prompt-rustsec/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-technical-nonengineers",
+      "title": "Coding Agents for Technical Non-Engineers",
+      "date": "2026-04-09",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Paved lanes and managed defaults for domain experts.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/coding-agents-for-technical-non-engineers/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/coding-agents-for-technical-non-engineers.mdx",
+            "sha256": "be7910b9116348c67994662b5442842a5626fbe5b19f5243380c74b18a86cd62",
+            "upstream_path": "packages/blog/content/coding-agents-for-technical-non-engineers/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-good-job",
+      "title": "What Does It Mean to Do a Good Job?",
+      "date": "2026-04-10",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Tacit non-functional requirements, verification, and reviewer convergence.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/what-does-it-mean-to-do-a-good-job/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/what-does-it-mean-to-do-a-good-job.mdx",
+            "sha256": "eb5a8070edc8edc1c0863a7e25c5694b6c7f7c2eb674f018179078dbaa057f19",
+            "upstream_path": "packages/blog/content/what-does-it-mean-to-do-a-good-job/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-vacuum",
+      "title": "Enabling Codex to Upgrade My Robot Vacuum",
+      "date": "2026-04-19",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Repository-owned automation and runbooks, a canary identity, human gates, and rollback.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/robot-vacuum-canary-tailscale/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/robot-vacuum-canary-tailscale.mdx",
+            "sha256": "e114c5bf845a8f677b89c372ebb6033234cfa3c0cd707e99d5dbdd08a41b631f",
+            "upstream_path": "packages/blog/content/robot-vacuum-canary-tailscale/post.mdx"
+          },
+          {
+            "role": "article_diagram_source",
+            "path": "sources/raw/hyperbola/deploy-runbook.mmd",
+            "sha256": "5bdcfa2c26d2fbdb61a6dc43a767275af68a48dc93ec76aa0a87051a260b698e",
+            "upstream_path": "packages/blog/content/robot-vacuum-canary-tailscale/deploy-runbook.mmd"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-token-mandates",
+      "title": "Please Go Brr, on Token Mandates",
+      "date": "2026-07-17",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Treats broad token budgets as organizational search for practitioners, business problems, and last-mile deployment patterns under uncertainty.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/token-mandates/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/token-mandates.mdx",
+            "sha256": "74f7e2bbe73a09b4254b1e0c4e623743492b0ed7f23760db060225faa2c6beb1",
+            "upstream_path": "packages/blog/content/token-mandates/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-code-reds",
+      "title": "Code Reds Need Maintenance Loops",
+      "date": "2026-07-17",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Treats an emergency response as an adaptive episode that should leave durable ownership of the invariant, signals, interventions, and maintenance loop it discovers.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/code-reds-need-maintenance-loops/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/code-reds-need-maintenance-loops.mdx",
+            "sha256": "ccb9ee560602fe67e027707bd503fc155d70a399674f59a7098f307e53fc64af",
+            "upstream_path": "packages/blog/content/code-reds-need-maintenance-loops/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "hyperbola-tool-discovery",
+      "title": "MCP Solves Tool Discovery for LLMs",
+      "date": "2025-08-10",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "historical_precursor",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Precursor to the agent-legibility and tool-discovery argument.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/tool-discovery/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/tool-discovery.mdx",
+            "sha256": "fbdbbc0afd5803e67f87ed2bffa3fea5a3156247c65e6d049cd84a7030c94c33",
+            "upstream_path": "packages/blog/content/tool-discovery/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "x-model-native-harness",
+      "title": "The harness we have, not the harness we deserve",
+      "date": "2026-05-02",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "deleted_social_post_archived_api_and_screenshot",
+      "classification": "core_primary_user_supplied_deleted_source",
+      "canonical": true,
+      "review_basis": "archived_x_api_json_full_note_text_and_user_supplied_screenshot",
+      "duplicate_of": null,
+      "notes": "The post argues that post-training makes model-visible tool semantics consequential. docs/fixed-worker/model-native-semantics.md develops the compatibility implications for native agents, third-party hosts, Polytoken, and ACP.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2050705271840989347",
+            "archived_url": "https://web.archive.org/web/20260502223331id_/https://twitter.com/_lopopolo/status/2050705271840989347"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2050705271840989347"
+        }
+      }
+    },
+    {
+      "id": "unprompted-code-is-free",
+      "title": "Code Is Free: Securing Software in the Agentic Future",
+      "date": "2026-03-03",
+      "reviewed_at": "2026-07-18",
+      "publisher": "[un]prompted",
+      "authors": ["Paul McMillan", "Ryan Lopopolo"],
+      "kind": "talk_transcript",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_official_transcript_slides_and_video",
+      "duplicate_of": null,
+      "notes": "Shows how bounded interviews with security experts become repository-owned principles, threat-model review, tests, lints, reviewer agents, and a recurring dependency scanner. The official transcript is machine-generated and was checked against the video where its wording was ambiguous.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.youtube.com/watch?v=U2O14Jd3MBU",
+            "archived_url": "https://web.archive.org/web/20260327172831id_/https://www.youtube.com/watch?v=U2O14Jd3MBU"
+          },
+          {
+            "role": "event",
+            "url": "https://unpromptedcon.org/abstract-march2026/",
+            "archived_url": "https://web.archive.org/web/20260428044423id_/https://unpromptedcon.org/abstract-march2026/"
+          },
+          {
+            "role": "transcript",
+            "url": "https://drive.google.com/file/d/1_frxpWyqd5n2lqBmiPzcBX7oUP1dm78f/view?usp=sharing"
+          },
+          {
+            "role": "slides",
+            "url": "https://drive.google.com/file/d/1auBbLrfTXr4nHKpXjojhVPZZcFjwBHBt/view?usp=sharing"
+          }
+        ]
+      }
+    },
+    {
+      "id": "openai-build-hour-api-codex",
+      "title": "Build Hour: API & Codex",
+      "date": "2026-03-10",
+      "reviewed_at": "2026-07-18",
+      "publisher": "OpenAI",
+      "authors": ["Charlie Guo", "Ryan Lopopolo", "Mitch Troyanovsky"],
+      "kind": "talk_video",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_external_transcript_and_official_video_metadata",
+      "duplicate_of": null,
+      "notes": "OpenAI Build Hour. Ryan's Harness Engineering segment begins at 21:53; the video also covers Codex, the API, Agent Legibility Score, Basis, and Q&A. Rewiz provides the reviewed third-party transcript and may contain transcription errors. The archive preserves the official watch page and video metadata; it is not treated as an archived copy of the audiovisual stream.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.youtube.com/watch?v=rhsSqr0jdFw",
+            "archived_url": "https://web.archive.org/web/20260310195018id_/https://www.youtube.com/watch?v=rhsSqr0jdFw"
+          },
+          {
+            "role": "transcript",
+            "url": "https://rewiz.app/channels/%40openai/build-hour-api-codex",
+            "archive_status": "unavailable: canonical page returned HTTP 526 and Wayback Save Page Now returned HTTP 520 on 2026-07-18"
+          }
+        ]
+      }
+    },
+    {
+      "id": "latent-space-interview",
+      "title": "Extreme Harness Engineering for Token Billionaires",
+      "date": "2026-04-07",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo", "Latent Space hosts"],
+      "kind": "interview_transcript",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_transcript",
+      "duplicate_of": null,
+      "notes": "Canonical transcript/page for the interview.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.latent.space/p/harness-eng",
+            "archived_url": "https://web.archive.org/web/20260422112722id_/https://www.latent.space/p/harness-eng"
+          }
+        ]
+      }
+    },
+    {
+      "id": "latent-space-video",
+      "title": "Extreme Harness Engineering for Token Billionaires (video)",
+      "date": "2026-04-07",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Latent Space hosts"],
+      "kind": "video",
+      "classification": "duplicate_media",
+      "canonical": false,
+      "review_basis": "duplicate_of_reviewed_transcript",
+      "duplicate_of": "latent-space-interview",
+      "notes": "Video presentation of the canonical interview. The archive preserves the watch page and video identifier; it is not treated as an archived copy of the audiovisual stream.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.youtube.com/watch?v=CeOXx-XTYek",
+            "archived_url": "https://web.archive.org/web/20260421021709id_/https://www.youtube.com/watch?v=CeOXx-XTYek"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aie-europe-talk",
+      "title": "Harness Engineering: How to Build Software When Humans Steer, Agents Execute",
+      "date": "2026-04-17",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "talk_video",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_transcript_or_captions",
+      "duplicate_of": null,
+      "notes": "AI Engineer Europe talk. The archive preserves the watch page and video metadata; it is not treated as an archived copy of the audiovisual stream.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.youtube.com/watch?v=am_oeAoUhew",
+            "archived_url": "https://web.archive.org/web/20260515140139id_/https://www.youtube.com/watch?v=am_oeAoUhew"
+          }
+        ]
+      }
+    },
+    {
+      "id": "odsc-talk",
+      "title": "Harness Engineering—Practical Patterns for Agent-First Software Development",
+      "date": "2026-04-28",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "talk_video",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_video_or_transcript",
+      "duplicate_of": null,
+      "notes": "ODSC talk; primary source.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://vimeo.com/1189320346",
+            "archive_status": "unavailable: Vimeo robots policy blocked automated preservation and Wayback Save Page Now returned HTTP 520 on 2026-07-18"
+          }
+        ]
+      }
+    },
+    {
+      "id": "odsc-attendee-notes",
+      "title": "ODSC AI 2026 Day 1, Talk 7 attendee notes",
+      "date": "2026-04-28",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Oren Bochman"],
+      "kind": "third_party_notes",
+      "classification": "secondary",
+      "canonical": false,
+      "review_basis": "full_text",
+      "duplicate_of": "odsc-talk",
+      "notes": "Useful corroboration, but not Ryan-authored and not a substitute transcript.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://orenbochman.github.io/blog/posts/2026/04-28-ODSC-AI-2026-Day-1/talk7.html",
+            "archived_url": "https://web.archive.org/web/20260718075105id_/https://orenbochman.github.io/blog/posts/2026/04-28-ODSC-AI-2026-Day-1/talk7.html"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aakash-interview",
+      "title": "How PMs Ship 100K Lines of Code",
+      "date": "2026-05-25",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo", "Aakash Gupta"],
+      "kind": "interview_transcript",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_transcript",
+      "duplicate_of": null,
+      "notes": "Canonical transcript/page.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.aakashg.com/how-pms-ship-100k-lines-of-code/",
+            "archived_url": "https://web.archive.org/web/20260718074920id_/https://www.aakashg.com/how-pms-ship-100k-lines-of-code/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aakash-video",
+      "title": "How PMs Ship 100K Lines of Code (video)",
+      "date": "2026-05-25",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Aakash Gupta"],
+      "kind": "video",
+      "classification": "duplicate_media",
+      "canonical": false,
+      "review_basis": "duplicate_of_reviewed_transcript",
+      "duplicate_of": "aakash-interview",
+      "notes": "Video presentation of the canonical interview. The archive preserves the watch page and video metadata; it is not treated as an archived copy of the audiovisual stream.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.youtube.com/watch?v=8suwvrF0Lv0",
+            "archived_url": "https://web.archive.org/web/20260606125303id_/https://www.youtube.com/watch?v=8suwvrF0Lv0&feature=youtu.be"
+          }
+        ]
+      }
+    },
+    {
+      "id": "devcon-talk",
+      "title": "Harness Engineering",
+      "date": "2026-06-01",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "talk_transcript",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_transcript",
+      "duplicate_of": null,
+      "notes": "AI Native DevCon primary transcript.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://tessl.io/registry/ainativedev/aidevcon-2026-ldn/0.100.8/files/talk-lopopolo-harness-engineering/transcript.md",
+            "archived_url": "https://web.archive.org/web/20260718014014id_/https://tessl.io/registry/ainativedev/aidevcon-2026-ldn/0.100.8/files/talk-lopopolo-harness-engineering/transcript.md"
+          }
+        ]
+      }
+    },
+    {
+      "id": "craft-talk",
+      "title": "Ryan Lopopolo's Craft Conference harness-engineering talk",
+      "date": "2026-06-04",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "talk_abstract",
+      "classification": "repeated_delivery",
+      "canonical": false,
+      "review_basis": "abstract_only",
+      "duplicate_of": "aie-europe-talk",
+      "notes": "No public recording located; not counted as distinct theory.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://craft-conf.com/2026/talk/ryan-lopopolos-talk",
+            "archived_url": "https://web.archive.org/web/20260718075132id_/https://craft-conf.com/2026/talk/ryan-lopopolos-talk"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tessl-interview",
+      "title": "OpenAI's Framework for Shipping Code at 70 PRs/Week",
+      "date": "2026-06-09",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "AI Native Dev host"],
+      "kind": "interview_transcript",
+      "classification": "core_primary",
+      "canonical": true,
+      "review_basis": "full_transcript",
+      "duplicate_of": null,
+      "notes": "Canonical podcast page and transcript.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://tessl.io/podcast/109/",
+            "archived_url": "https://web.archive.org/web/20260718075246id_/https://tessl.io/podcast/109/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tessl-video",
+      "title": "OpenAI's Framework for Shipping Code at 70 PRs/Week (video)",
+      "date": "2026-06-09",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "AI Native Dev host"],
+      "kind": "video",
+      "classification": "duplicate_media",
+      "canonical": false,
+      "review_basis": "duplicate_of_reviewed_transcript",
+      "duplicate_of": "tessl-interview",
+      "notes": "Video presentation of the canonical interview. The archive preserves the watch page and video metadata; it is not treated as an archived copy of the audiovisual stream.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://www.youtube.com/watch?v=MFQIKbr1IEo",
+            "archived_url": "https://web.archive.org/web/20260613220003id_/https://www.youtube.com/watch?v=MFQIKbr1IEo"
+          }
+        ]
+      }
+    },
+    {
+      "id": "homelab-repository",
+      "title": "Ryan’s private homelab repository",
+      "date": null,
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo", "repository contributors"],
+      "kind": "repository",
+      "classification": "private_implementation_case_study",
+      "authorship_scope": "individual_and_repository_contributors",
+      "canonical": false,
+      "review_basis": "direct_repository_evidence",
+      "duplicate_of": null,
+      "notes": "Covers context routing, a report-only documentation-freshness role, domain-first Go organization, semantic manifest parsers, repository-owned lints, supply-chain policy, versioned automation, consequential-operation state machines, and responsibility transferred by an owned Markdown implementation.",
+      "evidence": {
+        "type": "private_review",
+        "access": "private"
+      }
+    },
+    {
+      "id": "rand-mt-repository",
+      "title": "artichoke/rand_mt",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "repository",
+      "classification": "implementation_primary",
+      "canonical": true,
+      "review_basis": "repository_docs_source_and_rollout_prs",
+      "duplicate_of": null,
+      "notes": "Small public harness implementation cited in the DevCon talk.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/rand_mt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rand-mt-pr327",
+      "title": "rand_mt PR #327: automation runbooks",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request",
+      "classification": "implementation_primary",
+      "canonical": true,
+      "review_basis": "full_patch",
+      "duplicate_of": null,
+      "notes": "Repository-owned automation contracts.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/rand_mt/pull/327"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rand-mt-pr331",
+      "title": "rand_mt PR #331: supply-chain posture",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request",
+      "classification": "implementation_primary",
+      "canonical": true,
+      "review_basis": "full_patch",
+      "duplicate_of": null,
+      "notes": "Pinned, minimal, fail-closed dependency and release policy.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/rand_mt/pull/331"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rand-mt-pr332",
+      "title": "rand_mt PR #332: guardrails and AGENTS.md",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request",
+      "classification": "implementation_primary",
+      "canonical": true,
+      "review_basis": "full_patch",
+      "duplicate_of": null,
+      "notes": "Context routing and repository guardrails.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/rand_mt/pull/332"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rand-mt-pr334",
+      "title": "rand_mt PR #334: architecture",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request",
+      "classification": "implementation_primary",
+      "canonical": true,
+      "review_basis": "full_patch",
+      "duplicate_of": null,
+      "notes": "Flat architecture and explicit invariants.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/rand_mt/pull/334"
+          }
+        ]
+      }
+    },
+    {
+      "id": "rand-mt-pr337",
+      "title": "rand_mt PR #337: authoritative upstream dependency diff review",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request",
+      "classification": "implementation_primary",
+      "canonical": true,
+      "review_basis": "full_patch",
+      "duplicate_of": null,
+      "notes": "Upstream source, dist, executable, permission, cache, and PATH review.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/rand_mt/pull/337"
+          }
+        ]
+      }
+    },
+    {
+      "id": "intaglio-harness-adaptation",
+      "title": "intaglio harness and supply-chain adaptations",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request_set",
+      "classification": "adapted_implementation",
+      "canonical": false,
+      "review_basis": "full_patch",
+      "duplicate_of": "rand-mt-repository",
+      "notes": "Adapted guardrail/supply-chain corpus, not distinct theory.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/intaglio/pull/385"
+          }
+        ],
+        "related_urls": ["https://github.com/artichoke/intaglio/pull/384"]
+      }
+    },
+    {
+      "id": "sysdir-harness-adaptation",
+      "title": "sysdir-rs harness and supply-chain adaptations",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request_set",
+      "classification": "adapted_implementation",
+      "canonical": false,
+      "review_basis": "full_patch",
+      "duplicate_of": "rand-mt-repository",
+      "notes": "Adapted guardrail/supply-chain corpus, not distinct theory.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/sysdir-rs/pull/141"
+          }
+        ],
+        "related_urls": ["https://github.com/artichoke/sysdir-rs/pull/140"]
+      }
+    },
+    {
+      "id": "known-folders-harness-adaptation",
+      "title": "known-folders-rs harness and supply-chain adaptations",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo", "Artichoke contributors"],
+      "kind": "pull_request_set",
+      "classification": "adapted_implementation",
+      "canonical": false,
+      "review_basis": "full_patch",
+      "duplicate_of": "rand-mt-repository",
+      "notes": "Adapted guardrail/supply-chain corpus, not distinct theory.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/artichoke/known-folders-rs/pull/139"
+          }
+        ],
+        "related_urls": [
+          "https://github.com/artichoke/known-folders-rs/pull/138"
+        ]
+      }
+    },
+    {
+      "id": "symphony-repository",
+      "title": "openai/symphony",
+      "date": null,
+      "reviewed_at": "2026-07-17",
+      "authors": ["OpenAI harness engineering team"],
+      "kind": "repository",
+      "classification": "first_party_team_work",
+      "authorship_scope": "team_not_individual",
+      "canonical": true,
+      "review_basis": "repository_review_and_team_provenance_confirmation",
+      "duplicate_of": null,
+      "notes": "Separates work discovery and agent-run lifecycle management from the instructions and proof owned by each target repository.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://github.com/openai/symphony"
+          }
+        ]
+      }
+    },
+    {
+      "id": "symphony-article",
+      "title": "An open-source spec for Codex orchestration: Symphony",
+      "date": "2026-04-27",
+      "reviewed_at": "2026-07-17",
+      "publisher": "OpenAI",
+      "authors": ["Alex Kotliarskyi", "Victor Zhu", "Zach Brock"],
+      "kind": "article",
+      "classification": "first_party_team_work",
+      "authorship_scope": "team_not_individual",
+      "canonical": true,
+      "review_basis": "full_text_and_team_provenance_confirmation",
+      "duplicate_of": null,
+      "notes": "Explains Symphony's orchestration model and its division of responsibility with target repositories.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://openai.com/index/open-source-codex-orchestration-symphony/",
+            "archived_url": "https://web.archive.org/web/20260628021114id_/https://openai.com/index/open-source-codex-orchestration-symphony/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "chatgpt-4000-prehistory",
+      "title": "I Wrote 4,000 Lines of Code with ChatGPT in a Weekend",
+      "date": "2023-06-13",
+      "reviewed_at": "2026-07-18",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "article",
+      "classification": "first_party_historical_antecedent",
+      "canonical": true,
+      "review_basis": "full_text",
+      "duplicate_of": null,
+      "notes": "Small, highly regular modules improved first-pass state-machine generation and anticipated agents grounded in repository code and history.",
+      "evidence": {
+        "type": "snapshot",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://hyperbo.la/w/chatgpt-4000/"
+          },
+          {
+            "role": "upstream_repository",
+            "url": "https://github.com/hyperbola/hyperbola-static"
+          }
+        ],
+        "retrieved_at": "2026-07-18",
+        "artifacts": [
+          {
+            "role": "article_source",
+            "path": "sources/raw/hyperbola/chatgpt-4000.mdx",
+            "sha256": "8f9d2af6b1c416a94873ba5bf8df01a1962c86ae34126feae7dc7f1b138d4c88",
+            "upstream_path": "packages/blog/content/chatgpt-4000/post.mdx"
+          }
+        ],
+        "rights": {
+          "license": "CC-BY-4.0",
+          "scope": "Ryan-authored article text only; see COPYING.md for exclusions"
+        },
+        "pinned_revision": "daebc4a85d5753747ec2aed36d99b1856d736015"
+      }
+    },
+    {
+      "id": "microthread-skills-model",
+      "title": "Skills written for the model",
+      "date": "2026-07-16",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "supporting_microthread",
+      "canonical": true,
+      "review_basis": "full_post",
+      "duplicate_of": null,
+      "notes": "Supporting detail, not a standalone long-form artifact.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2077629953366282318"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2077629953366282318"
+        }
+      }
+    },
+    {
+      "id": "microthread-jit-links",
+      "title": "Gitignored just-in-time context linking",
+      "date": "2026-07-15",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "supporting_microthread",
+      "canonical": true,
+      "review_basis": "full_post",
+      "duplicate_of": null,
+      "notes": "Supporting detail, not a standalone long-form artifact.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2077430634663088594"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2077430634663088594"
+        }
+      }
+    },
+    {
+      "id": "microthread-trajectory-skills",
+      "title": "Trajectory-specific and shared skills",
+      "date": "2026-07-15",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "supporting_microthread",
+      "canonical": true,
+      "review_basis": "full_post",
+      "duplicate_of": null,
+      "notes": "Supporting detail, not a standalone long-form artifact.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2077306653540749667"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2077306653540749667"
+        }
+      }
+    },
+    {
+      "id": "microthread-six-skills",
+      "title": "Short prose descriptions and limited linked skills",
+      "date": "2026-07-14",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "supporting_microthread",
+      "canonical": true,
+      "review_basis": "full_post",
+      "duplicate_of": null,
+      "notes": "Supporting detail, not a standalone long-form artifact.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2077149347528261712"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2077149347528261712"
+        }
+      }
+    },
+    {
+      "id": "microthread-fail-build",
+      "title": "Let the build fail",
+      "date": "2026-07-14",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "supporting_microthread",
+      "canonical": true,
+      "review_basis": "full_post",
+      "duplicate_of": null,
+      "notes": "Supporting detail, not a standalone long-form artifact.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2077153783654891635"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2077153783654891635"
+        }
+      }
+    },
+    {
+      "id": "microthread-runner-freshness",
+      "title": "Pinned, fresh runner automation",
+      "date": "2026-07-16",
+      "reviewed_at": "2026-07-17",
+      "authors": ["Ryan Lopopolo"],
+      "kind": "social_post",
+      "classification": "supporting_microthread",
+      "canonical": true,
+      "review_basis": "full_post",
+      "duplicate_of": null,
+      "notes": "Supporting detail, not a standalone long-form artifact.",
+      "evidence": {
+        "type": "linked",
+        "links": [
+          {
+            "role": "canonical",
+            "url": "https://x.com/_lopopolo/status/2077904710003228694"
+          }
+        ],
+        "collection_reference": {
+          "source_id": "twitter-public-crawl-2026",
+          "status_id": "2077904710003228694"
+        }
+      }
+    }
+  ]
+}
