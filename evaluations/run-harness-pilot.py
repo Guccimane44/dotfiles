@@ -89,7 +89,7 @@ def main():
                     def monitor(*_):
                         try:a.quota_guard(a.quota(),25,3)
                         except Exception:return 'quota-or-account-unavailable'
-                    a.run(argparse.Namespace(repo='pilot/fixture',issue=number,minutes=5,reserve=25,weekly_reserve=3,monitor=monitor))
+                    a.run(argparse.Namespace(repo='pilot/fixture',issue=number,minutes=5,reserve=25,weekly_reserve=3,monitor=monitor,workflow="standard"))
                     saved=json.loads((statefolder/'state.json').read_text())
                     attempt.update(status=saved['status'],usage=saved.get('last_usage'),session_id=saved.get('session_id'))
                     attempt['checkpoint_written']=(workspace/'.agent-work/checkpoint.md').read_text()!='Not started. Next: inspect task.py, implement the specification and verify it.\n'

@@ -92,3 +92,6 @@ relevant Nix build or other task-specific checks when needed. Verification recor
 actual results but does not accept or publish the work automatically. The contract's
 `dispatch_enabled: false` prevents onboarding from granting dispatch; it does not
 change the separately authorized scheduler's enabled flag.
+
+See [the lean worker workflow](docs/lean-workflow.md) for controller-captured handoffs
+and reduced model-authored administration. Cost savings remain to be measured.

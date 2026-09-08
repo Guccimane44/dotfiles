@@ -60,7 +60,7 @@ class InfrastructureTests(unittest.TestCase):
             folder = a.location('owner/repo', 1)
             a.save(folder/'state.json', {'workspace': str(work), 'branch': 'agent/issue-1', 'attempts': 0, 'session_id': None})
             fake = Path(tmp)/'codex'
-            fake.write_text('#!/usr/bin/env python3\nimport sys,json\nsys.stdin.read()\nif "resume" not in sys.argv:\n print(json.dumps({"type":"thread.started","thread_id":"saved-session"}),flush=True)\n print(json.dumps({"type":"turn.failed","error":{"message":"quota exceeded"}}),flush=True)\n sys.exit(1)\nassert "saved-session" in sys.argv\nprint(json.dumps({"type":"turn.completed","usage":{"output_tokens":10}}),flush=True)\n')
+            fake.write_text('#!/usr/bin/env python3\nimport sys,json\nsys.stdin.read()\nif "resume" not in sys.argv:\n print(json.dumps({"type":"thread.started","thread_id":"saved-session"}),flush=True)\n print(json.dumps({"type":"turn.failed","error":{"message":"quota exceeded"}}),flush=True)\n sys.exit(1)\nassert "saved-session" in sys.argv\nprint(json.dumps({"type":"item.completed","item":{"type":"agent_message","text":"Fixed; checks passed; review next."}}),flush=True)\nprint(json.dumps({"type":"turn.completed","usage":{"output_tokens":10}}),flush=True)\n')
             fake.chmod(0o700)
             args = argparse.Namespace(repo='owner/repo', issue=1, minutes=1, reserve=15)
             with patch.object(a, 'tool', return_value=str(fake)), patch.object(a, 'quota', return_value={'rateLimits': {'primary': {'usedPercent': 0}}}), patch.object(a, 'snapshot', return_value=({'state': 'open', 'labels': []}, [])), contextlib.redirect_stdout(io.StringIO()):
@@ -72,6 +72,9 @@ class InfrastructureTests(unittest.TestCase):
                 state = json.loads((folder/'state.json').read_text())
                 self.assertEqual(state['status'], 'needs-review')
                 self.assertEqual(state['attempts'], 2)
+            handoff=json.loads((folder/'attempt-2-handoff.json').read_text())
+            self.assertEqual(handoff['message'],'Fixed; checks passed; review next.')
+            self.assertEqual(handoff['status'],'needs-review')
             self.assertEqual(len(state['history']), 2)
             self.assertFalse(state['history'][0]['usage_complete'])
             self.assertTrue(state['history'][1]['usage_complete'])
@@ -136,6 +139,18 @@ class InfrastructureTests(unittest.TestCase):
         with patch.object(a, 'gh', side_effect=[json.dumps(issue), json.dumps(comments), '{"login":"operator"}']):
             snap, _ = a.snapshot('owner/repo', 1)
         self.assertEqual([c['id'] for c in snap['comments']], [2])
+
+    def test_preflight_carries_prior_handoff_and_flags_truncation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            folder=Path(tmp);work=folder/'work';(work/'.agent-work').mkdir(parents=True)
+            (work/'.agent-work/checkpoint.md').write_text('x'*3000)
+            a.save(folder/'attempt-1-handoff.json',{'status':'interrupted','updated_at':'now','message':'Done: fix. Next: verify.'})
+            with patch.object(a,'git',return_value='clean'):
+                context=a.preflight(folder,{'branch':'task','attempts':1},work)
+            self.assertTrue(context['checkpoint_truncated'])
+            self.assertEqual(len(context['checkpoint']),2000)
+            self.assertIn('Next: verify',context['previous_handoff']['message'])
+            self.assertIn('unverified',a.handoff_text(folder,{'attempts':1}))
 
     def test_atomic_state_has_private_permissions(self):
         with tempfile.TemporaryDirectory() as tmp:

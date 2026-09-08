@@ -114,10 +114,14 @@ def publish(issue, status, note):
         if feedback['comment_ids']:
             body += 'Observed comment IDs: ' + ', '.join(str(i) for i in feedback['comment_ids'][-20:]) + '.\n'
     if checkpoint.exists():
-        body += '\n' + checkpoint.read_text()[:16000]
+        body += '\nSaved milestone checkpoint (may precede the latest handoff):\n' + checkpoint.read_text()[:16000]
     state_path = folder / 'state.json'
     if state_path.exists():
         state = json.loads(state_path.read_text())
+        handoff = folder / f'attempt-{state["attempts"]}-handoff.json'
+        if handoff.exists():
+            data = json.loads(handoff.read_text())
+            body += '\n\nLatest worker handoff (unverified, ' + data['status'] + '):\n' + data['message'][:8000]
         body += f'\n\nBranch: `{state["branch"]}`. Attempt: {state["attempts"]}.\n'
         workspace = Path(state['workspace'])
         head = a.git(workspace, 'rev-parse', 'HEAD')
