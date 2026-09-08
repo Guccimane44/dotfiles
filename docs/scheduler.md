@@ -38,7 +38,7 @@ The controller writes a cooperative checkpoint request and allows five seconds b
 
 Each normally finalized attempt records elapsed time, outcome, HEAD, and reported usage. Interrupted usage is marked unknown instead of zero; an abrupt controller kill may also omit final accounting. Keep JSONL logs for investigation. Do not infer billing or token savings from incomplete records. The authorization policy, not token estimates, prevents repeated spending.
 
-Service logs are local `scheduler/service.log` and `scheduler/service-error.log`. They can contain task output and are not automatically rotated. No credentials/session IDs are posted by the controller, but checkpoint text is agent-authored and is published to the private task issue; keep secrets out of checkpoints.
+Service logs are local `scheduler/service.log` and `scheduler/service-error.log`. They can contain task output and rotate after controller invocations at 2 MiB, keeping two backups; task logs remain retained. No credentials/session IDs are posted by the controller, but checkpoint text is agent-authored and is published to the private task issue; keep secrets out of checkpoints.
 
 ## Verification
 

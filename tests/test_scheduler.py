@@ -28,6 +28,18 @@ class SchedulerTests(unittest.TestCase):
         s.a.save(path, {'attempts': attempts, 'session_id': session, 'status': 'prepared'})
         return path
 
+    def test_start_message_uses_luna_selection(self):
+        path = self.saved()
+        self.snap['labels'].append('agent:model:luna')
+        def run(args):
+            s.a.save(path, {'attempts': 1, 'session_id': 'saved', 'status': 'needs-review'})
+        with patch.object(s.a, 'run', side_effect=run):
+            s.tick()
+        starts = [call.args[2] for call in self.publish.call_args_list if call.args[1] == 'starting']
+        self.assertEqual(len(starts), 1)
+        self.assertIn('gpt-5.6-luna', starts[0])
+        self.assertNotIn('GPT-6 Astra', starts[0])
+
     def test_no_label_or_paused_never_runs(self):
         for labels in ([], ['agent:ready', 'agent:paused']):
             self.snap['labels'] = labels

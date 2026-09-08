@@ -293,7 +293,8 @@ def dispatch(pool, futures, cancel):
                 args.checkout = str(ensure_source())
                 a.prepare(args)
             # Publish before starting so lack of tracker write access prevents invisible work.
-            publish(issue, 'starting', 'Starting one GPT-6 Astra attempt with a 20-minute limit and quota monitoring. Routine review belongs to the supervising agent; high-level architectural choices go to the user. Publication remains within the task authorization.')
+            planned_model, _ = a.select_model(snap, json.loads(saved.read_text()))
+            publish(issue, 'starting', f'Planning one {planned_model} attempt with a 20-minute limit and quota monitoring. The attempt record confirms the selected model at launch. Routine review belongs to the supervising agent; high-level architectural choices go to the user. Publication remains within the task authorization.')
             check = monitor(issue, fingerprint(snap))
             args.monitor = lambda worker, initial, check=check: 'paused' if cancel.is_set() else check(worker, initial)
             future = pool.submit(attempt, args, saved, previous)

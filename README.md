@@ -1,6 +1,15 @@
 # Dotfiles and issue-based development
 
-Personal Apple Silicon macOS configuration plus a bounded GitHub/Codex workflow. Workers use GPT-6 Astra through the existing ChatGPT login. The opt-in scheduler runs on this Mac only. There is no paid API fallback, automatic code publication, merge, or deployment.
+Personal Apple Silicon macOS configuration plus a bounded GitHub/Codex workflow. Workers use Luna for explicitly classified simple tasks and Astra for complex or unclassified new tasks, through the existing ChatGPT login. The opt-in scheduler runs on this Mac only. There is no paid API fallback, automatic code publication, merge, or deployment.
+
+## First release
+
+The v0.1.0 candidate consolidates the single-Mac infrastructure. See
+[release notes and readiness evidence](docs/releases/v0.1.0.md) for scope and limits,
+and [product onboarding](docs/product-onboarding.md) for the next Vocabularium step.
+Automatic dispatch and recorded acceptance verification currently target dotfiles.
+The manual launcher supports other GitHub repositories, but product readiness still
+requires project-specific checks and an explicitly authorized pilot.
 
 ## Machine setup
 
@@ -49,13 +58,13 @@ See [scheduler operations](docs/scheduler.md) for activation, issue controls, ex
 - To intervene, stop the foreground run first, edit the issue/comment, remove the blocking label when ready, then run again. The same session receives a fresh issue snapshot and human comments.
 - `agent-work run` reuses the saved session ID. It never silently creates a fresh session after an unsuccessful attempt without an ID. Missing sessions/workspaces need deliberate investigation.
 - State defaults to `~/.local/state/agent-work/OWNER/REPO/N`; set `AGENT_WORK_STATE` to relocate it **before preparing tasks**. Switching state roots creates independent lock domains; use one root on this machine.
-- A global process lock allows one operation/worker at a time. Process exit releases it. It does not coordinate other computers, external Codex sessions, or other tools.
+- Four shared worker slots and per-issue/workspace locks prevent overlapping work; runtime maintenance is exclusive. Child processes retain locks if a controller exits. These locks do not coordinate other computers, external Codex sessions, or other tools.
 - Checkpoints are locally durable and synchronized to GitHub only by explicit `sync --publish`. Checkpoint quality relies on the worker following the prompt. A hard kill can interrupt its latest write. Inspect the checkpoint plus Git state before trusting a recovery.
 - A stale `running` status after a hard process kill is historical state, not proof a worker remains alive. Check processes before restarting; do not run duplicate workers manually.
 
 ## Cost controls and limits
 
-Default: GPT-6 Astra, medium reasoning, up to four workers, 20-minute run ceiling, and at least 15% remaining in the short quota window and 3% in the weekly window at launch. Override with `--minutes 5 --reserve 25 --weekly-reserve 3` when needed. The quota check uses Codex App Server account reads and does not start an LLM turn. Missing quota data blocks launch. No quota-reset credits are consumed.
+Default: [task-based Luna/Astra routing](docs/model-routing.md), medium reasoning, up to four workers, 20-minute run ceiling, and at least 15% remaining in the short quota window and 3% in the weekly window at launch. Override with `--minutes 5 --reserve 25 --weekly-reserve 3` when needed. The quota check uses Codex App Server account reads and does not start an LLM turn. Missing quota data blocks launch. No quota-reset credits are consumed.
 
 The launcher removes an inherited `OPENAI_API_KEY`, requires ChatGPT authentication, and ignores the user's base config for worker invocation so model/effort are explicit. It uses workspace-write sandboxing and refuses requests needing approval in the noninteractive worker. It does not bypass the sandbox, install tools, or change host configuration for workers. Missing tools/permissions should be reported for the supervisor to resolve.
 
@@ -94,7 +103,9 @@ actual results but does not accept or publish the work automatically. The contra
 change the separately authorized scheduler's enabled flag.
 
 See [the lean worker workflow](docs/lean-workflow.md) for controller-captured handoffs
-and reduced model-authored administration. Cost savings remain to be measured.
+and reduced model-authored administration. The [matched small-task pilot](evaluations/lean-pilot-2026-09-08.md) measured lower worker token use; project-wide cost savings remain unproven.
 
 The current shared capacity is [four workers](docs/concurrency.md), with one operation
 per issue/workspace. Runtime maintenance remains exclusive.
+
+[Optional external expertise](docs/optional-expertise.md) is retrieved only for unresolved decisions; it is not preloaded into worker prompts.
