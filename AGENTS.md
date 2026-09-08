@@ -10,7 +10,26 @@ Deliberate decisions in this repo - do NOT silently revert them:
 Use GitHub issues for substantive infrastructure tasks and link PRs to their issue.
 Read README.md for manual dispatch and recovery. Keep runtime logs, session IDs,
 and credentials outside Git. Test changes with `python3 -m unittest discover -s tests -v`.
-Do not start unattended scheduling or register product repositories in Phase 1.
+Routine implementation choices, verification, acceptance reviews, and bounded retry
+approvals belong to the supervising agent. Do not ask the user to review routine
+work. Ask the user for high-level architectural choices that materially change
+system boundaries, technology/platform choices, data ownership, or long-term
+trade-offs. Record review evidence before acceptance or another attempt. Preserve
+quota, sandbox, repository-scope, and retry protections; an execution permission
+that the environment actually requires must still be surfaced. Do not register
+product repositories as part of dotfiles infrastructure work.
+
+## Worker model routing
+
+Use Luna for simple issue drafts, documentation, and bounded mechanical work; use
+Astra for complex implementation, debugging, architecture, and analytical documents.
+Set the issue's Work class or model label before dispatch; see docs/model-routing.md.
+Do not spend a separate model turn classifying a task or silently retry on Astra.
+
+## Optional expertise
+
+For an unresolved harness-design decision, consult docs/optional-expertise.md;
+retrieve one relevant pinned reference only when local evidence is insufficient.
 
 ## Maintaining this file
 

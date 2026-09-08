@@ -1,0 +1,36 @@
+sequenceDiagram
+  autonumber
+  participant App as Codex.app automation harness
+  participant Human
+  participant Codex
+  participant GitHub as GitHub PR
+  participant Prod as loki prod identity
+  participant Canary as loki-canary identity
+  participant Loki as Loki filesystem and processes
+
+  App->>Codex: trigger scheduled upgrade assessment
+  Codex->>App: read prior automation memory
+  Codex->>Codex: inspect release notes, omit tags, and candidate build
+  Codex->>GitHub: open version-bump PR
+  Codex->>App: persist assessment memory
+  Codex->>Codex: build v1.96.4 linux/arm64
+  Human->>Codex: approve canary deploy
+  Codex->>Prod: copy binary to /data/tailscaled.canary
+  Prod->>Loki: start canary daemon with separate state and runtime
+  Prod-->>Codex: canary logs and auth URL if needed
+  Human->>Canary: authenticate loki-canary in the tailnet
+  Codex->>Canary: canary ssh
+  Canary-->>Codex: SSH reachable
+  Human->>Codex: approve production cutover
+  Codex->>Prod: prod backup
+  Prod->>Loki: copy /data/tailscaled to /data/tailscaled.bak
+  Codex->>Canary: canary promote
+  Canary->>Loki: stop prod daemon, copy canary binary, start prod daemon
+  Codex->>Prod: prod ssh and prod logs
+  Prod-->>Codex: production running v1.96.4
+  Codex->>Prod: canary stop
+  Prod->>Loki: stop isolated canary daemon and preserve canary state
+  Codex->>App: persist deploy memory
+  Human->>Codex: ask for PR deploy summary
+  Codex->>GitHub: comment deploy details on version-bump PR
+  Codex->>App: persist PR-comment follow-up memory

@@ -1,0 +1,162 @@
+{
+  "model": "gpt-6-astra",
+  "reasoning": "medium",
+  "cli": "codex-cli 0.153.4",
+  "skill_revision": "063bee94c3f4df8453406c830b0a7df0f2860278",
+  "guidelines_revision": "e3d624baaf29dc1fc645aff3e38f03e564d2d6b1",
+  "started_at": "2026-09-07T17:19:13+00:00",
+  "attempt_cap": 5,
+  "status": "completed_conditions_with_interruption",
+  "attempts_started": 5,
+  "attempts_completed": 4,
+  "attempts_interrupted": 1,
+  "attempts_not_started": 0,
+  "cases": [
+    {
+      "case": "a-baseline",
+      "fixture": "review.html",
+      "profile": null,
+      "source_sha256": "e7d68a9460a440e582a1a216fcabf7bd067e2765c401aaed0319f7a5134689d5",
+      "status": "completed",
+      "duration_seconds": 28.07,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 46503,
+        "cached_input_tokens": 39424,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 500,
+        "reasoning_output_tokens": 82
+      },
+      "source_unchanged": true,
+      "skill_read_commands": [],
+      "usage_complete": true,
+      "manual_score": {
+        "predefined_defects_found": 4,
+        "predefined_defects_total": 4,
+        "additional_valid_findings": 1,
+        "false_positives_observed": 0,
+        "human_interventions": 0
+      }
+    },
+    {
+      "case": "a-skills",
+      "fixture": "review.html",
+      "profile": "web-review",
+      "source_sha256": "e7d68a9460a440e582a1a216fcabf7bd067e2765c401aaed0319f7a5134689d5",
+      "status": "completed",
+      "duration_seconds": 28.95,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 49738,
+        "cached_input_tokens": 43264,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 561,
+        "reasoning_output_tokens": 0
+      },
+      "source_unchanged": true,
+      "skill_read_commands": [
+        "/bin/zsh -lc 'cat .agents/skills/web-design-guidelines/SKILL.md'",
+        "/bin/zsh -lc 'cat .agents/skills/web-design-guidelines/references/guidelines.md'"
+      ],
+      "usage_complete": true,
+      "manual_score": {
+        "predefined_defects_found": 4,
+        "predefined_defects_total": 4,
+        "additional_valid_findings": 1,
+        "false_positives_observed": 0,
+        "human_interventions": 0
+      }
+    },
+    {
+      "case": "b-skills",
+      "fixture": "Page.tsx",
+      "profile": "react",
+      "source_sha256": "c6b2503dd9b5f421a222d532fde2cca4d6b654dfb51b874639fcae5cee34f3e3",
+      "status": "quota-or-account-unavailable: Quota reserve reached (codex/secondary); resets at 2026-09-13T13:04:14+00:00. No retry loop.",
+      "duration_seconds": 31.27,
+      "exit_code": -15,
+      "usage": null,
+      "source_unchanged": true,
+      "skill_read_commands": [
+        "/bin/zsh -lc \"pwd; rg --files -g 'AGENTS.md' -g '*Page.tsx' -g '*page.tsx'; cat .agents/skills/react-best-practices/SKILL.md\"",
+        "/bin/zsh -lc 'cat .agents/skills/react-best-practices/rules/async-parallel.md .agents/skills/react-best-practices/rules/rerender-derived-state-no-effect.md .agents/skills/react-best-practices/rules/js-tosorted-immutable.md'"
+      ],
+      "usage_complete": false,
+      "last_native_usage_snapshot": {
+        "input_tokens": 51215,
+        "cached_input_tokens": 44928,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 269,
+        "reasoning_output_tokens": 32,
+        "total_tokens": 51484
+      },
+      "usage_note": "Partial cumulative snapshot from native session log; may omit in-flight usage. Not a complete attempt total."
+    },
+    {
+      "case": "b-skills-resume",
+      "fixture": "Page.tsx",
+      "profile": "react",
+      "source_sha256": "c6b2503dd9b5f421a222d532fde2cca4d6b654dfb51b874639fcae5cee34f3e3",
+      "status": "completed",
+      "duration_seconds": 15.68,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 19278,
+        "cached_input_tokens": 19072,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 356,
+        "reasoning_output_tokens": 0
+      },
+      "source_unchanged": true,
+      "skill_read_commands": [],
+      "usage_complete": true,
+      "manual_score": {
+        "predefined_defects_found": 3,
+        "predefined_defects_total": 3,
+        "additional_valid_findings": 0,
+        "false_positives_observed": 0
+      },
+      "same_session_as_interrupted_attempt": true,
+      "additional_file_read_commands": 0
+    },
+    {
+      "case": "b-baseline",
+      "fixture": "Page.tsx",
+      "profile": null,
+      "source_sha256": "c6b2503dd9b5f421a222d532fde2cca4d6b654dfb51b874639fcae5cee34f3e3",
+      "status": "completed",
+      "duration_seconds": 32.06,
+      "exit_code": 0,
+      "usage": {
+        "input_tokens": 46680,
+        "cached_input_tokens": 42496,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 544,
+        "reasoning_output_tokens": 58
+      },
+      "source_unchanged": true,
+      "skill_read_commands": [],
+      "usage_complete": true,
+      "manual_score": {
+        "predefined_defects_found": 3,
+        "predefined_defects_total": 3,
+        "additional_valid_findings": 0,
+        "false_positives_observed": 0
+      }
+    }
+  ],
+  "scoring_note": "Manual, unblinded review against the predeclared rubric; exploratory sample with only one complete task pair.",
+  "initial_attempt_cap": 4,
+  "continuation_policy": {
+    "short_reserve": 25,
+    "weekly_reserve": 3
+  },
+  "continuation_authorization": "User lowered weekly reserve to 3% and authorized continuing.",
+  "react_skill_condition_lower_bound": {
+    "input_tokens": 70493,
+    "cached_input_tokens": 64000,
+    "output_tokens": 625,
+    "active_duration_seconds": 46.95,
+    "note": "Partial original snapshot plus completed resume; interrupted in-flight usage may be missing. This is not a clean fresh-session comparison."
+  }
+}

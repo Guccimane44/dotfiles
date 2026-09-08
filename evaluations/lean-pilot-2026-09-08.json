@@ -1,0 +1,274 @@
+{
+  "model": "gpt-6-astra",
+  "cli": "codex-cli 0.153.4",
+  "source_revision": "f8208baa81aab313409a035cbdcfc9162abee8d0",
+  "attempt_cap": 6,
+  "attempt_seconds": 300,
+  "attempts": [
+    {
+      "fixture": "duration",
+      "condition": "lean",
+      "status": "needs-review",
+      "usage": {
+        "input_tokens": 66068,
+        "cached_input_tokens": 60544,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 628,
+        "reasoning_output_tokens": 0,
+        "uncached_input_tokens": 5524
+      },
+      "source_sha256": "e95745d6c065cee0e73d3949ed2128fb49761d52327190bf1d0ab0d1b437bce1",
+      "tests_sha256": "20209d3ec1118e381c03d266485820a563b6bf972ffaa0ea7fbae0f735cb4ebd",
+      "started_at": "2026-09-08T04:19:41+00:00",
+      "elapsed_seconds": 32.069,
+      "tests_unchanged": true,
+      "extra_files": [],
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "model_responses": 4,
+      "compactions": 0,
+      "first_input_tokens": 16046,
+      "uncached_input_by_response": [
+        3886,
+        363,
+        693,
+        582
+      ],
+      "commands_count": 4,
+      "required_tests_observed": true,
+      "diff_check_observed": true,
+      "checkpoint_write_actions": 0,
+      "controller_handoff_exists": true,
+      "changed_files": [
+        "task.py"
+      ]
+    },
+    {
+      "fixture": "duration",
+      "condition": "standard",
+      "status": "needs-review",
+      "usage": {
+        "input_tokens": 82912,
+        "cached_input_tokens": 77184,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1029,
+        "reasoning_output_tokens": 0,
+        "uncached_input_tokens": 5728
+      },
+      "source_sha256": "e95745d6c065cee0e73d3949ed2128fb49761d52327190bf1d0ab0d1b437bce1",
+      "tests_sha256": "20209d3ec1118e381c03d266485820a563b6bf972ffaa0ea7fbae0f735cb4ebd",
+      "started_at": "2026-09-08T04:20:14+00:00",
+      "elapsed_seconds": 47.9,
+      "tests_unchanged": true,
+      "extra_files": [],
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "model_responses": 5,
+      "compactions": 0,
+      "first_input_tokens": 15859,
+      "uncached_input_by_response": [
+        3699,
+        376,
+        550,
+        709,
+        394
+      ],
+      "commands_count": 3,
+      "required_tests_observed": true,
+      "diff_check_observed": true,
+      "checkpoint_write_actions": 2,
+      "controller_handoff_exists": true,
+      "changed_files": [
+        "task.py"
+      ]
+    },
+    {
+      "fixture": "dedupe",
+      "condition": "standard",
+      "status": "needs-review",
+      "usage": {
+        "input_tokens": 83178,
+        "cached_input_tokens": 72320,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 901,
+        "reasoning_output_tokens": 0,
+        "uncached_input_tokens": 10858
+      },
+      "source_sha256": "56b53d4a11afdad8b0e0091a8ceaea0a0a12c2363f0e859c798da8e488808aaf",
+      "tests_sha256": "698873cd3a91cf4914b16eea47ded38118b876dfa076ac5167ab3b1188b2091c",
+      "started_at": "2026-09-08T04:21:04+00:00",
+      "elapsed_seconds": 41.221,
+      "tests_unchanged": true,
+      "extra_files": [],
+      "correct": true,
+      "grader_output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "model_responses": 5,
+      "compactions": 0,
+      "first_input_tokens": 15870,
+      "uncached_input_by_response": [
+        3710,
+        439,
+        485,
+        956,
+        5268
+      ],
+      "commands_count": 4,
+      "required_tests_observed": true,
+      "diff_check_observed": true,
+      "checkpoint_write_actions": 2,
+      "controller_handoff_exists": true,
+      "changed_files": [
+        "task.py"
+      ]
+    },
+    {
+      "fixture": "dedupe",
+      "condition": "lean",
+      "status": "needs-review",
+      "usage": {
+        "input_tokens": 50004,
+        "cached_input_tokens": 40192,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 613,
+        "reasoning_output_tokens": 0,
+        "uncached_input_tokens": 9812
+      },
+      "source_sha256": "56b53d4a11afdad8b0e0091a8ceaea0a0a12c2363f0e859c798da8e488808aaf",
+      "tests_sha256": "698873cd3a91cf4914b16eea47ded38118b876dfa076ac5167ab3b1188b2091c",
+      "started_at": "2026-09-08T04:21:46+00:00",
+      "elapsed_seconds": 29.203,
+      "tests_unchanged": true,
+      "extra_files": [],
+      "correct": true,
+      "grader_output": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.000s\n\nOK\n",
+      "model_responses": 3,
+      "compactions": 0,
+      "first_input_tokens": 16054,
+      "uncached_input_by_response": [
+        3894,
+        4547,
+        1371
+      ],
+      "commands_count": 3,
+      "required_tests_observed": true,
+      "diff_check_observed": true,
+      "checkpoint_write_actions": 0,
+      "controller_handoff_exists": true,
+      "changed_files": [
+        "task.py"
+      ]
+    },
+    {
+      "fixture": "retry",
+      "condition": "lean",
+      "status": "needs-review",
+      "usage": {
+        "input_tokens": 66550,
+        "cached_input_tokens": 60928,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 682,
+        "reasoning_output_tokens": 113,
+        "uncached_input_tokens": 5622
+      },
+      "source_sha256": "08fd7dc4b37d2c828e10c9961acb9b738b82bdf8114c988f89b9c19deac05ea7",
+      "tests_sha256": "d90b6dc0866bb290f424f97d092c69e455ac2bf54fa86c3df558ad883e9a0c26",
+      "started_at": "2026-09-08T04:22:16+00:00",
+      "elapsed_seconds": 32.263,
+      "tests_unchanged": true,
+      "extra_files": [],
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "model_responses": 4,
+      "compactions": 0,
+      "first_input_tokens": 16056,
+      "uncached_input_by_response": [
+        3896,
+        687,
+        341,
+        698
+      ],
+      "commands_count": 5,
+      "required_tests_observed": true,
+      "diff_check_observed": true,
+      "checkpoint_write_actions": 0,
+      "controller_handoff_exists": true,
+      "changed_files": [
+        "task.py"
+      ]
+    },
+    {
+      "fixture": "retry",
+      "condition": "standard",
+      "status": "needs-review",
+      "usage": {
+        "input_tokens": 84341,
+        "cached_input_tokens": 77824,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 1288,
+        "reasoning_output_tokens": 193,
+        "uncached_input_tokens": 6517
+      },
+      "source_sha256": "08fd7dc4b37d2c828e10c9961acb9b738b82bdf8114c988f89b9c19deac05ea7",
+      "tests_sha256": "d90b6dc0866bb290f424f97d092c69e455ac2bf54fa86c3df558ad883e9a0c26",
+      "started_at": "2026-09-08T04:22:49+00:00",
+      "elapsed_seconds": 51.516,
+      "tests_unchanged": true,
+      "extra_files": [],
+      "correct": true,
+      "grader_output": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n",
+      "model_responses": 5,
+      "compactions": 0,
+      "first_input_tokens": 15872,
+      "uncached_input_by_response": [
+        3712,
+        362,
+        861,
+        1168,
+        414
+      ],
+      "commands_count": 3,
+      "required_tests_observed": true,
+      "diff_check_observed": true,
+      "checkpoint_write_actions": 2,
+      "controller_handoff_exists": true,
+      "changed_files": [
+        "task.py"
+      ]
+    }
+  ],
+  "status": "complete",
+  "started_at": "2026-09-08T00:26:22+00:00",
+  "finished_at": "2026-09-08T04:23:40+00:00",
+  "continuations": [
+    {
+      "at": "2026-09-08T04:19:40+00:00",
+      "reserve": 25,
+      "source_revision": "79d30bf4c4fb2112bee0d0d1b1bf36d9af0d89c5",
+      "previous_error": "Quota reserve reached (codex/primary); resets at 2026-09-08T04:19:42+00:00. No retry loop."
+    }
+  ],
+  "short_reserve": 25,
+  "weekly_reserve": 3,
+  "totals": {
+    "standard": {
+      "input_tokens": 250431,
+      "cached_input_tokens": 227328,
+      "uncached_input_tokens": 23103,
+      "output_tokens": 3218,
+      "model_responses": 15,
+      "passed": 3,
+      "checkpoint_write_actions": 6,
+      "input_plus_output": 253649
+    },
+    "lean": {
+      "input_tokens": 182622,
+      "cached_input_tokens": 161664,
+      "uncached_input_tokens": 20958,
+      "output_tokens": 1923,
+      "model_responses": 11,
+      "passed": 3,
+      "checkpoint_write_actions": 0,
+      "input_plus_output": 184545
+    }
+  }
+}

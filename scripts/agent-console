@@ -1,0 +1,2 @@
+#!/bin/sh
+exec "/etc/profiles/per-user/$(id -un)/bin/python3" "$(dirname "$0")/agent-console.py" "$@"

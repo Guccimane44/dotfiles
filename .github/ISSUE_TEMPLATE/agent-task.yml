@@ -1,6 +1,19 @@
 name: Agent task
 description: A bounded task with observable acceptance criteria
 body:
+  - type: dropdown
+    id: work-class
+    attributes:
+      label: Work class
+      description: Simple drafting uses Luna; complex analysis, architecture, debugging, and implementation use Astra.
+      options:
+        - Complex work
+        - Simple documentation
+        - Simple issue writing
+        - Simple bounded work
+      default: 0
+    validations:
+      required: true
   - type: textarea
     id: outcome
     attributes:

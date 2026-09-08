@@ -1,0 +1,116 @@
+---
+title: "Please Go Brr, on Token Mandates"
+publishDate: "2026-07-17"
+slug: token-mandates
+summary: >-
+  CEO token mandates aren’t about measuring AI usage. They’re an organizational
+  search strategy for discovering where reasoning models create leverage, who
+  can deploy them, and what businesses should fund next.
+social:
+  card: overlay-card
+  image: token-mandates-forest.png
+---
+
+import { Image } from "astro:assets";
+
+import figure from "./token-mandates-forest.png?url";
+
+There is a lot of chatter right now around the chaos and confusion of CEO-led
+“[token mandates],” or requiring a minimum amount of AI usage across an employee
+population and on an individual basis. These mandates are rational and serve a
+good purpose; they are not cargo culting. Rather, token mandates are an
+organizational discovery mechanism for learning how to deploy reasoning compute.
+
+[token mandates]: https://the-ai-native.company/
+
+<div class="mb-3 rounded-sm">
+  <Image
+    class="mx-auto img-fluid d-block rounded-sm"
+    height="1086"
+    width="1448"
+    src={figure}
+    alt="A richly detailed isometric cross-section of a regenerating temperate forest after wildfire. Above ground, silver-charred tree trunks stand among carpets of moss, unfurling ferns, foxgloves, fireweed, and young conifers growing from fallen nurse logs in warm morning light. Dozens of honeybees drift independently through the flowers, their scattered flight paths hinting at a larger collective rhythm. Below the forest floor, an intricate amber-glowing mycelial network spreads between tree roots, stones, mushrooms, insects, and underground pools, revealing the hidden living infrastructure that connects the ecosystem. Rendered in a tactile editorial illustration style with layered paper textures and muted botanical colors, the scene evokes emergence, resilience, and distributed intelligence through nature rather than technology."
+  />
+</div>
+
+The steel case for token mandates is:
+
+- AI is a transformative technology.
+- No one knows how to use it.
+- No _execs_ know how it could be valuable to their business.[^shop]
+- No one in _management_ knows what good _practitioners_ they have.
+- No one in _management_ knows what skills good _practitioners_ have or will
+  need.
+- Intelligence is a result of high token consumption.[^compute]
+- Finding business problems that can be productively solved with high token
+  consumption (and figuring out how to do so!) is the name of the game.
+
+Deploying AI into places with [suitable context, harness, tools, and access] to
+enable high token consumption is the required recipe for extracting the most
+intelligence and the most value out of the models. This is a [direct consequence
+of test time compute] AKA reasoning.
+
+[suitable context, harness, tools, and access]:
+  https://openai.com/index/harness-engineering/
+[direct consequence of test time compute]:
+  https://x.com/polynoamial/status/2075647948906533297
+
+The naïve approach is also the conservative capital-allocation choice: staff a
+small central AI team to explore deployment patterns. This is fraught because
+leadership does not yet know which _practitioners_ belong on it. In marketing,
+it might choose the best brand marketer or someone in Marketing Ops and miss the
+person quietly automating campaign production. In SDR, it might choose the top
+quota carrier or RevOps and miss the rep who instinctively decomposes account
+research into something an agent can execute. The existing performance system
+was built to identify excellence in [the old production function]. It is almost
+orthogonal to identifying who can build the new one.
+
+[the old production function]: /w/production-function-changed/
+
+This combination of factors basically begets token mandates; they enable each
+company to discover what bench it has, what bench it needs, how to get there,
+and what to even remotely consider funding. In the face of this new technology,
+we must do some randomized hill climbing to even discover what patterns are
+possible, let alone which ones work well. Last mile deployment is an area
+that—at least so far as of July 2026—is not yet handled by the models
+themselves, so doing this discovery must be done by the existing set of expert
+humans in your business.
+
+If you believe artificial intelligence and LLM-based agents to be potentially as
+disruptive as electricity,[^dynamo] it would in fact behoove you to do as rapid
+experimentation as possible to rebuild your entire business with it at the core.
+
+And having been [inside the token factory] and also having spoken to many
+customers (from startups to VCs to mega conglomerates, hedge funds, and Silicon
+Valley SaaS), it is a universal truth that roughly only 5% of every org has the
+skills and vision to build the machine that builds the machine. You must find
+those people and you must empower them with unlimited budget.
+
+[inside the token factory]: https://www.latent.space/p/harness-eng
+
+[^shop]:
+    Even after making AI a company-wide priority, as Shopify discovered in its
+    first few months of deployment documented in [From Memo to Movement].
+
+[from memo to movement]: https://www.firstround.com/ai/shopify
+
+[^compute]:
+    One way to read the arc from chat to agents is as a steady expansion of the
+    model’s test-time compute budget: more tokens spent reasoning, planning,
+    using tools, and revising before it answers or acts. [OpenAI reported] that
+    o1 performance improved smoothly with more time spent thinking, while
+    [Google reports] that Gemini’s reasoning quality rises as its thinking-token
+    budget increases. In API terms this is reasoning effort or thinking budget;
+    in harness slang, “juice”: tokens spent in private chain of thought,
+    planning, tool use, and revision.
+
+[openai reported]: https://openai.com/index/learning-to-reason-with-llms/
+[google reports]:
+  https://developers.googleblog.com/en/start-building-with-gemini-25-flash/
+
+[^dynamo]:
+    David, P. A. (1990). _The Dynamo and the Computer: An Historical Perspective
+    on the Modern Productivity Paradox_. _The American Economic Review_, 80(2),
+    355–361. [https://www.jstor.org/stable/2006600].
+
+[https://www.jstor.org/stable/2006600]: https://www.jstor.org/stable/2006600

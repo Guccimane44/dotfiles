@@ -1,0 +1,110 @@
+---
+title: "The Production Function Changed"
+publishDate: "2026-03-13"
+slug: production-function-changed
+summary: >-
+  With agents, a lint that finds 600 violations can ship with fixes and
+  exhaustive coverage in one PR. Human attention moves from implementation to
+  choosing invariants and evaluating proof.
+social:
+  card: overlay-card
+  image: software-production-function-printing-press.png
+---
+
+import { Image } from "astro:assets";
+
+import figure from "./software-production-function-printing-press.png?url";
+
+As a principal engineer, one of the most powerful levers I have is to create
+policy and tools that empower others to have success by default. Linters are
+static verifiers that fit this shape well, and with agents, turning the lints up
+to 11 is one way to ensure the software they produce falls into the pit of
+success. In one example, I turned on `no-await-in-loop` from ESLint in a large
+TypeScript codebase, finding 600 violations. In the “before times” where
+implementation was constrained on human labor, this would be an expensive
+migration; with agents, it is a single PR to both do the lint fixes _and_
+exhaustively add test coverage.
+
+<div class="mb-3 rounded-sm">
+  <Image
+    class="mx-auto img-fluid d-block rounded-sm"
+    height="500"
+    width="500"
+    src={figure}
+    alt="A miniature 3D isometric machine continuously printing and stacking sheets of code, styled like a premium Airbnb icon. The device resembles a compact industrial printer with a control screen and conveyor belt, producing neat stacks of blue code tiles. The scene is rendered in soft neutral lighting on a white background, suggesting automated, high-throughput software production."
+  />
+</div>
+
+Software organizations were built around human implementation time as the scarce
+input. Planning, staffing, prioritization, and risk management all assume that
+more software requires more engineers. Agents break that assumption.
+
+Writing the policy was historically the cheap part. The expensive part was
+deploying it into a mature codebase: migrating every callsite, proving the
+migration preserved behavior, and stopping new violations while the cleanup was
+in flight. An obviously correct invariant could still fail the capital
+allocation test if adopting it required staffing a migration.
+
+For example, most engineers have been paged for an outage that boiled down to a
+missing timeout or retry on a cross-service network call. The collective amount
+of engineering time spent on this failure mode is astounding. Still, there is no
+ESLint plugin to drop into a codebase to assert that every `fetch` call carries
+the right policy.
+
+Because code is cheap now, we can vibe that guardrail into place with 100% code
+coverage and exhaustive table-driven tests, migrate the codebase in one go, and
+surface a descriptive failure to the model every time it writes another `fetch`
+call. The agent does not need to remember the rule up front; the verifier gives
+it the missing context exactly when it needs it.
+
+The higher the agent throughput, the more policy has to be executable. Repeating
+the same invariant in comments on every agent-authored PR does not scale. If it
+matters, it belongs in a verifier owned by the repo.[^fs-safe]
+
+The implementation budget applies to architecture too. Most user preference
+systems I have encountered are not _designed_, and because of that you get
+constructs like three-valued booleans (`yes | no | shopify`, in Stripe’s case)
+or boolean settings with unmanaged defaults. With agents, we can have the user
+preference system of our dreams as if we are already operating at billion-user
+scale: `on | off | unset`, plus a service-level default for `unset` that can
+change over time, and delegated registration so “preferences” or “feature flags”
+stay centrally managed while each business domain registers its own knobs.
+Before agents, this design was easy to water down because the fiddlyness would
+eat the team alive. Now doing it correctly costs the same as doing it shittily.
+
+Review has to scale with implementation. At the end of a run, the agent should
+be treated like another member of the team: it needs to convince the reviewer to
+merge. We do not shoulder surf teammates while they write code, and agents do
+not need that either. If the evidence is insufficient, ask for the same proof
+you would ask from a teammate: the tests that ran, the QA plan, logs from the
+staging deploy, or a screenshot or video of the feature working. The agent
+should attach those validation artifacts to the PR before asking for review.
+
+Once the PR carries its own proof, I do not need to watch the implementation
+happen. I haven’t written code by hand in months. My laptop hums with its lid
+half closed at night—or [rides buckled into the back seat of my
+SUV][laptop-suv]—running `caffeinate -sdi` so a PR or three can get authored,
+pushed, reviewed, and merged while I’m asleep.
+
+When I want an end-to-end run, I prompt Codex with
+`$task $launch-app $local-obs $commit $push $land $github-pr-media` and let it
+rip.
+
+For smaller work, I reply to a Slack thread with `@Codex do it`. Codex web picks
+up the thread as context, handles a docs fixup or small ticket asynchronously,
+and opens a PR. By the time the PR reaches me, I am making a yes-or-no merge
+decision. I am not attached to the code because I did not spend the day typing
+it; I am evaluating the invariant and the proof.
+
+In these workflows, human implementation is no longer the constraint. The scarce
+work is choosing the invariant and deciding whether the proof is sufficient.
+
+[laptop-suv]: https://x.com/_lopopolo/status/2018578503751606682
+[fs-safe]: https://fs-safe.io/
+[go-os-root]: https://pkg.go.dev/os#Root
+[openat2]: https://man7.org/linux/man-pages/man2/openat2.2.html
+
+[^fs-safe]:
+    OpenClaw’s [`@openclaw/fs-safe`][fs-safe], Go’s [`os.Root`][go-os-root], and
+    Linux’s [`openat2(2)`][openat2] are representative interfaces for
+    constraining filesystem access beneath an allowed root.

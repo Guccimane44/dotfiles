@@ -18,6 +18,10 @@ in
   home.packages = with pkgs; [
     (pkgs.writeShellScriptBin "agent-work" ''
       export PATH="${pkgs.git}/bin:/opt/homebrew/bin:$PATH"
+      runtime="$HOME/.local/share/agent-work/launch.py"
+      if [ -f "$runtime" ]; then
+        exec ${pkgs.python3}/bin/python3 "$runtime" "$@"
+      fi
       exec ${pkgs.python3}/bin/python3 "${dotfiles}/scripts/agent-work.py" "$@"
     '')
     (pkgs.writeShellScriptBin "codex" ''
@@ -78,7 +82,7 @@ in
   home.file = lib.mkMerge [
     (optionalFile "home/.config/wezterm" ".config/wezterm")
     (optionalFile "home/.config/nvim" ".config/nvim")
-    (optionalFile "home/.config/herdr" ".config/herdr")
+    (optionalFile "home/.config/herdr/config.toml" ".config/herdr/config.toml")
     (optionalFile "home/.claude/settings.json" ".claude/settings.json")
 
     # Keep Pi's credential and runtime state local by linking only authored files and directories.

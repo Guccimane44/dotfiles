@@ -1,0 +1,13 @@
+**/*
+
+!**/*/
+
+!*.json
+!*.md
+!*.mdx
+!*.yaml
+!*.yml
+
+# Preserve source material byte-for-byte.
+sources/raw/
+sources/twitter/lopopolo-public-x-2026.json
