@@ -20,3 +20,21 @@ subscription charge or quota-consumption inference from token totals.
 This is a single observation per condition per tiny task. It tests whether reducing
 administrative steps helps with matched deliverables. It does not establish broad
 project savings or recovery performance. Cache effects and stochastic behavior remain.
+
+## Initial quota block
+
+On 2026-09-08 at approximately 02:27 Berlin time, preflight reported 88% five-hour
+usage (12% remaining), below the required 25% reserve. No model attempt started.
+The reported reset was 06:19 Berlin time. The user explicitly chose to keep the
+reserve and leave the pilot ready for later. No automatic wakeup was scheduled.
+
+After quota becomes eligible, explicitly run:
+
+```sh
+PYTHONDONTWRITEBYTECODE=1 python3 evaluations/run-lean-pilot.py --continue-unstarted
+```
+
+The fixed local ledger retains the original six-attempt allowance. Continuation
+skips completed conditions and rejects any started/interrupted attempt needing review.
+A separate process lock prevents concurrent controllers. It still checks the original
+25% short-window and 3% weekly reserves before and during every model attempt.

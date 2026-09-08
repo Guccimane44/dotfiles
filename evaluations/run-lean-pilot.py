@@ -16,20 +16,44 @@ a=p.a;v=p.v
 ROOT=Path.home()/'.local/state/agent-work/evaluations/lean-pilot-2026-09-08'
 
 
+def continuation_keys(result):
+    rows=result.get('attempts',[])
+    keys={(r['fixture'],r['condition']) for r in rows}
+    if result.get('status')!='stopped' or len(rows)>6 or len(keys)!=len(rows) or any(r.get('status')!='needs-review' for r in rows):
+        raise RuntimeError('Only unstarted conditions may continue; started/interrupted attempts need review')
+    return keys
+
+
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--continue-unstarted',action='store_true')
+    args=parser.parse_args()
     os.umask(0o077);ROOT.mkdir(parents=True,exist_ok=True)
-    # Atomic reservation prevents both concurrent launches and replays of this allowance.
-    fd=os.open(ROOT/'reserved',os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600);os.close(fd)
     ledger=ROOT/'results.json'
-    result={'model':a.MODEL,'cli':a.call([a.tool('codex'),'--version']),
-            'source_revision':a.git(p.BASE,'rev-parse','HEAD'),'attempt_cap':6,'attempt_seconds':300,
-            'attempts':[],'status':'running','started_at':a.stamp()}
+    lockfile=(ROOT/'pilot.lock').open('a')
+    import fcntl
+    fcntl.flock(lockfile,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    if args.continue_unstarted:
+        result=json.loads(ledger.read_text())
+        finished=continuation_keys(result)
+        result['status']='running'
+        result.setdefault('continuations',[]).append({'at':a.stamp(),'reserve':25,
+            'source_revision':a.git(p.BASE,'rev-parse','HEAD'),'previous_error':result.pop('error',None)})
+    else:
+        # Atomic reservation prevents replay of the allowance.
+        fd=os.open(ROOT/'reserved',os.O_CREAT|os.O_EXCL|os.O_WRONLY,0o600);os.close(fd)
+        result={'model':a.MODEL,'cli':a.call([a.tool('codex'),'--version']),
+                'source_revision':a.git(p.BASE,'rev-parse','HEAD'),'attempt_cap':6,'attempt_seconds':300,
+                'attempts':[],'status':'running','started_at':a.stamp()}
+        finished=set()
+    result['short_reserve']=25;result['weekly_reserve']=3
     a.save(ledger,result)
     original=a.snapshot
     try:
         for index,(name,task,source,grader) in enumerate(p.FIXTURES):
             test=grader+'\nif __name__=="__main__": unittest.main()\n'
             for condition in (['lean','standard'] if index%2==0 else ['standard','lean']):
+                if (name,condition) in finished:continue
                 a.quota_guard(a.quota(),25,3)
                 folder=ROOT/f'{index}-{condition}';work=folder/'work';work.mkdir(parents=True)
                 (work/'task.py').write_text(source);(work/'test_task.py').write_text(test)
@@ -68,6 +92,6 @@ def main():
     except BaseException as error:
         result.update(status='stopped',error=str(error));raise
     finally:
-        a.snapshot=original;result['finished_at']=a.stamp();a.save(ledger,result)
+        a.snapshot=original;result['finished_at']=a.stamp();a.save(ledger,result);lockfile.close()
 
 if __name__=='__main__':main()
