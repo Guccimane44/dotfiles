@@ -38,3 +38,10 @@ The fixed local ledger retains the original six-attempt allowance. Continuation
 skips completed conditions and rejects any started/interrupted attempt needing review.
 A separate process lock prevents concurrent controllers. It still checks the original
 25% short-window and 3% weekly reserves before and during every model attempt.
+
+## Completed comparison
+
+After the user reported refreshed quota and authorized continuation, all six conditions
+completed without retries. See [results](lean-pilot-2026-09-08.md) and
+[sanitized measurements](lean-pilot-2026-09-08.json). All six passed the matched checks;
+lean reduced worker tokens in each category. This allowance is now fully consumed.
