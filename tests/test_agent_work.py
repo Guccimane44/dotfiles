@@ -16,6 +16,22 @@ spec.loader.exec_module(a)
 
 
 class InfrastructureTests(unittest.TestCase):
+    def test_model_routing_precedence_and_validation(self):
+        self.assertEqual(a.select_model({}, {})[0], a.MODEL)
+        for value, alias in a.WORK_CLASSES.items():
+            snap = {'body': '### Work class\n\n' + value + '\n\n### Outcome\nFix it'}
+            self.assertEqual(a.select_model(snap, {})[0], a.MODELS[alias])
+        snap = {'labels': ['agent:model:astra'], 'body': '### Work class\n\nSimple documentation'}
+        self.assertEqual(a.select_model(snap, {})[0], a.MODEL)
+        self.assertEqual(a.select_model(snap, {}, 'luna')[0], a.MODELS['luna'])
+        self.assertEqual(a.select_model({}, {'model': a.MODELS['luna']})[0], a.MODELS['luna'])
+        self.assertEqual(a.select_model({'title': 'write docs'}, {})[0], a.MODEL)
+        for snap in ({'labels': ['agent:model:luna', 'agent:model:astra']},
+                     {'body': '### Work class\nunknown'},
+                     {'body': '### Work class\nComplex work\n### Work class\nSimple documentation'}):
+            with self.assertRaises(RuntimeError): a.select_model(snap, {})
+        with self.assertRaises(RuntimeError): a.select_model({}, {}, 'unknown')
+
     def test_path_validation(self):
         for repo in ('../../other', '../repo', 'owner/..', '/tmp/repo', 'a/b/c', 'a b/c'):
             with self.assertRaises(RuntimeError): a.location(repo, 1)
@@ -60,14 +76,15 @@ class InfrastructureTests(unittest.TestCase):
             folder = a.location('owner/repo', 1)
             a.save(folder/'state.json', {'workspace': str(work), 'branch': 'agent/issue-1', 'attempts': 0, 'session_id': None})
             fake = Path(tmp)/'codex'
-            fake.write_text('#!/usr/bin/env python3\nimport sys,json\nsys.stdin.read()\nif "resume" not in sys.argv:\n print(json.dumps({"type":"thread.started","thread_id":"saved-session"}),flush=True)\n print(json.dumps({"type":"turn.failed","error":{"message":"quota exceeded"}}),flush=True)\n sys.exit(1)\nassert "saved-session" in sys.argv\nprint(json.dumps({"type":"item.completed","item":{"type":"agent_message","text":"Fixed; checks passed; review next."}}),flush=True)\nprint(json.dumps({"type":"turn.completed","usage":{"output_tokens":10}}),flush=True)\n')
+            fake.write_text('#!/usr/bin/env python3\nimport sys,json\nassert sys.argv[sys.argv.index("--model")+1] == "gpt-5.6-luna"\nsys.stdin.read()\nif "resume" not in sys.argv:\n print(json.dumps({"type":"thread.started","thread_id":"saved-session"}),flush=True)\n print(json.dumps({"type":"turn.failed","error":{"message":"quota exceeded"}}),flush=True)\n sys.exit(1)\nassert "saved-session" in sys.argv\nprint(json.dumps({"type":"item.completed","item":{"type":"agent_message","text":"Fixed; checks passed; review next."}}),flush=True)\nprint(json.dumps({"type":"turn.completed","usage":{"output_tokens":10}}),flush=True)\n')
             fake.chmod(0o700)
-            args = argparse.Namespace(repo='owner/repo', issue=1, minutes=1, reserve=15)
+            args = argparse.Namespace(repo='owner/repo', issue=1, minutes=1, reserve=15, model='luna')
             with patch.object(a, 'tool', return_value=str(fake)), patch.object(a, 'quota', return_value={'rateLimits': {'primary': {'usedPercent': 0}}}), patch.object(a, 'snapshot', return_value=({'state': 'open', 'labels': []}, [])), contextlib.redirect_stdout(io.StringIO()):
                 a.run(args)
                 state = json.loads((folder/'state.json').read_text())
                 self.assertEqual(state['status'], 'interrupted')
                 self.assertEqual(state['session_id'], 'saved-session')
+                args.model = None
                 a.run(args)
                 state = json.loads((folder/'state.json').read_text())
                 self.assertEqual(state['status'], 'needs-review')
@@ -76,6 +93,8 @@ class InfrastructureTests(unittest.TestCase):
             self.assertEqual(handoff['message'],'Fixed; checks passed; review next.')
             self.assertEqual(handoff['status'],'needs-review')
             self.assertEqual(len(state['history']), 2)
+            self.assertTrue(all(h['model'] == a.MODELS['luna'] for h in state['history']))
+            self.assertEqual(state['history'][1]['model_reason'], 'saved model')
             self.assertFalse(state['history'][0]['usage_complete'])
             self.assertTrue(state['history'][1]['usage_complete'])
             self.assertEqual(state['history'][1]['usage'], {'output_tokens': 10})

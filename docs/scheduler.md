@@ -1,6 +1,6 @@
 # Single-Mac scheduler
 
-Scope: only `Guccimane44/dotfiles`, one GPT-6 Astra worker, medium reasoning, subscription login, 25% five-hour and 3% weekly quota reserves, 20-minute attempt deadline. No product repositories, automatic retries of started attempts, code publication, or merges. Polling uses GitHub and account APIs, not model turns.
+Scope: only `Guccimane44/dotfiles`, up to four workers, routed to GPT-5.6 Luna or GPT-6 Astra, medium reasoning, subscription login, 25% five-hour and 3% weekly quota reserves, 20-minute attempt deadline. No product repositories, automatic retries of started attempts, code publication, or merges. Polling uses GitHub and account APIs, not model turns.
 
 ## Installation and controls
 

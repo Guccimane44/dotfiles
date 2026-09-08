@@ -21,6 +21,13 @@ import time
 ROOT = Path(os.environ.get('AGENT_WORK_STATE', str(Path.home() / '.local/state/agent-work'))).expanduser().resolve()
 WORKER_LIMIT = 4
 MODEL = 'gpt-6-astra'
+MODELS = {'luna': 'gpt-5.6-luna', 'astra': MODEL}
+WORK_CLASSES = {
+    'Simple documentation': 'luna',
+    'Simple issue writing': 'luna',
+    'Simple bounded work': 'luna',
+    'Complex work': 'astra',
+}
 MARKER = '<!-- agent-work:v1 -->'
 
 
@@ -324,11 +331,38 @@ def lean_prompt(snap, context):
         'Controller preflight: ' + json.dumps(context, ensure_ascii=False) + '\nIssue: ' + json.dumps(snap, ensure_ascii=False))
 
 
+def select_model(snap, state, override=None):
+    """Explicit routing only: no classifier turn, keyword guesses, or fallback spend."""
+    if override:
+        if override not in MODELS:
+            raise RuntimeError('Unknown worker model override')
+        return MODELS[override], 'manual override'
+    labels = set(snap.get('labels', []))
+    choices = [name for name in MODELS if 'agent:model:' + name in labels]
+    if len(choices) > 1:
+        raise RuntimeError('Conflicting worker model labels; select one before dispatch')
+    if choices:
+        return MODELS[choices[0]], 'issue label'
+    sections = re.findall(r'^### Work class\s*\n(.*?)(?=^### |\Z)',
+                          snap.get('body') or '', re.M | re.S)
+    if len(sections) > 1:
+        raise RuntimeError('Duplicate Work class sections; reconcile before dispatch')
+    if sections:
+        value = sections[0].strip()
+        if value not in WORK_CLASSES:
+            raise RuntimeError('Unknown Work class; select a supported class before dispatch')
+        return MODELS[WORK_CLASSES[value]], 'work class: ' + value
+    if state.get('model') in MODELS.values():
+        return state['model'], 'saved model'
+    return MODEL, 'unclassified: Astra default'
+
+
 def run(args):
     with task_lock(args.repo, args.issue) as lock_fds:
         folder, state = read_state(args)
         snap, _ = snapshot(args.repo, args.issue)
         eligible(snap)
+        model, model_reason = select_model(snap, state, getattr(args, 'model', None))
         quota_guard(quota(), args.reserve, getattr(args, "weekly_reserve", 3))
         workspace = Path(state['workspace'])
         if not workspace.is_dir():
@@ -361,12 +395,13 @@ def run(args):
             cmd += ['--sandbox', 'workspace-write']
         cmd += ['--ignore-user-config', '-c', 'sandbox_mode="workspace-write"',
                 '-c', 'approval_policy="never"', '-c', 'model_reasoning_effort="medium"',
-                '--model', MODEL, '--json', '--output-last-message', str(workspace / '.agent-work/last-message.md'), '-']
-        state.update(status='running', attempts=state['attempts'] + 1, updated_at=stamp(), workflow=workflow)
+                '--model', model, '--json', '--output-last-message', str(workspace / '.agent-work/last-message.md'), '-']
+        state.update(status='running', attempts=state['attempts'] + 1, updated_at=stamp(), workflow=workflow,
+                     model=model, model_reason=model_reason)
         state.pop('last_usage', None)
         state.setdefault('history', []).append({
             'attempt': state['attempts'], 'status': 'running', 'started_at': stamp(),
-            'usage': None, 'usage_complete': False})
+            'usage': None, 'usage_complete': False, 'model': model, 'model_reason': model_reason})
         checkpoint = workspace / '.agent-work/checkpoint.md'
         if checkpoint.exists():
             save(folder / f'checkpoint-{state["attempts"]}-before.json',
@@ -494,6 +529,7 @@ def sync(args):
         body = (f'{MARKER}\n## Agent workpad\n\nStatus: **{state["status"]}**\n'
                 f'Updated: {stamp()}\nBranch: `{state["branch"]}`\n'
                 f'Commit: `{git(workspace, "rev-parse", "HEAD")}`\n\n' + checkpoint.read_text())
+        body += '\n\nWorker model: ' + state.get('model', 'legacy/unrecorded') + '\n'
         body += handoff_text(folder, state)
         if len(body) > 50000:
             raise RuntimeError('Checkpoint is too long; shorten it before publishing')
@@ -535,6 +571,7 @@ def main():
             p.add_argument('--checkout', required=True)
         if name == 'run':
             p.add_argument('--minutes', type=int, default=20)
+            p.add_argument('--model', choices=sorted(MODELS), help='Override issue routing for this attempt')
             p.add_argument('--workflow', choices=['lean', 'standard'], default='lean')
             p.add_argument('--reserve', type=int, default=15)
             p.add_argument('--weekly-reserve', type=int, default=3)

@@ -120,6 +120,7 @@ def publish(issue, status, note):
     state_path = folder / 'state.json'
     if state_path.exists():
         state = json.loads(state_path.read_text())
+        body += '\nWorker model: ' + state.get('model', 'legacy/unrecorded') + '\n'
         handoff = folder / f'attempt-{state["attempts"]}-handoff.json'
         if handoff.exists():
             data = json.loads(handoff.read_text())
